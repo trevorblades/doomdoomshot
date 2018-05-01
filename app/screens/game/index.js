@@ -39,7 +39,10 @@ export default class Game extends Component {
 
   state = {
     connected: false,
-    message: '',
+    selections: {
+      a: '',
+      b: '',
+    },
   };
 
   componentDidMount() {
@@ -58,7 +61,7 @@ export default class Game extends Component {
 
   onConnect = () => this.setState({connected: true});
 
-  onMessage = message => this.setState({message});
+  onMessage = selections => this.setState({selections});
 
   onDisconnect = () => this.setState({connected: false});
 
@@ -77,16 +80,16 @@ export default class Game extends Component {
     return (
       <View style={styles.container}>
         <View style={styles.row}>
-          <Player lifeRemaining={2}>Player 1</Player>
+          <Player lifeRemaining={2}>Me</Player>
           <Button title="Quit game" onPress={this.quitGame} />
           <Player other lifeRemaining={1}>
-            Pla
+            The bad guy
           </Player>
         </View>
         <View style={[styles.row, styles.plays]}>
-          <Text style={styles.play}>{this.state.message}</Text>
+          <Text style={styles.play}>{this.state.selections.a}</Text>
           <View transform={[{scaleX: -1}]}>
-            <Text style={styles.play}>👉</Text>
+            <Text style={styles.play}>{this.state.selections.b}</Text>
           </View>
         </View>
         <View style={styles.row}>

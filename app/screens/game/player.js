@@ -6,6 +6,10 @@ import {View, Text, StyleSheet} from 'react-native';
 import {MAX_LIFE} from '../../constants';
 
 const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    width: 0,
+  },
   name: {
     marginBottom: 4,
     fontWeight: 'bold',
@@ -32,7 +36,7 @@ export default class Player extends Component {
 
   render() {
     return (
-      <View>
+      <View style={styles.container}>
         <Text
           style={[styles.name, this.props.other ? styles.alignRight : null]}
         >
