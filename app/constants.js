@@ -1,1 +1,1 @@
-export const MAX_LIFE = 3;
+module.exports.MAX_LIFE = 3;

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {Button, Text, View, StyleSheet} from 'react-native';
+import {Button, Text, View, StyleSheet, ActivityIndicator} from 'react-native';
 
 import socket from '../../socket';
 import Option from './option';
@@ -11,8 +11,16 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
   },
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activityText: {
+    marginBottom: 12,
+  },
   row: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
   },
   plays: {
@@ -29,32 +37,47 @@ export default class Game extends Component {
     navigation: PropTypes.object.isRequired,
   };
 
+  state = {
+    connected: false,
+  };
+
   componentDidMount() {
-    socket.open();
+    setTimeout(() => socket.open(), 2000);
     socket.on('connect', this.onConnect);
+    socket.on('disconnect', this.onDisconnect);
   }
 
   componentWillUnmount() {
     socket.close();
     socket.off('connect', this.onConnect);
+    socket.off('disconnect', this.onDisconnect);
   }
 
-  onConnect() {
-    console.log('connected!');
-  }
+  onConnect = () => this.setState({connected: true});
+
+  onDisconnect = () => this.setState({connected: false});
 
   quitGame = () => this.props.navigation.navigate('Menu');
 
   render() {
+    if (!this.state.connected) {
+      return (
+        <View style={[styles.container, styles.centered]}>
+          <Text style={styles.activityText}>Connecting...</Text>
+          <ActivityIndicator size="large" />
+        </View>
+      );
+    }
+
     return (
       <View style={styles.container}>
         <View style={styles.row}>
           <Player lifeRemaining={2}>Player 1</Player>
+          <Button title="Quit game" onPress={this.quitGame} />
           <Player other lifeRemaining={1}>
             Pla
           </Player>
         </View>
-        <Button title="Quit game" onPress={this.quitGame} />
         <View style={[styles.row, styles.plays]}>
           <Text style={styles.play}>👍</Text>
           <View transform={[{scaleX: -1}]}>
