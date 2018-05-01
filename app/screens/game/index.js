@@ -31,10 +31,16 @@ export default class Game extends Component {
 
   componentDidMount() {
     socket.open();
+    socket.on('connect', this.onConnect);
   }
 
   componentWillUnmount() {
     socket.close();
+    socket.off('connect', this.onConnect);
+  }
+
+  onConnect() {
+    console.log('connected!');
   }
 
   quitGame = () => this.props.navigation.navigate('Menu');
