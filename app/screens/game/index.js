@@ -39,21 +39,26 @@ export default class Game extends Component {
 
   state = {
     connected: false,
+    message: '',
   };
 
   componentDidMount() {
     setTimeout(() => socket.open(), 2000);
     socket.on('connect', this.onConnect);
+    socket.on('message', this.onMessage);
     socket.on('disconnect', this.onDisconnect);
   }
 
   componentWillUnmount() {
     socket.close();
     socket.off('connect', this.onConnect);
+    socket.off('message', this.onMessage);
     socket.off('disconnect', this.onDisconnect);
   }
 
   onConnect = () => this.setState({connected: true});
+
+  onMessage = message => this.setState({message});
 
   onDisconnect = () => this.setState({connected: false});
 
@@ -79,7 +84,7 @@ export default class Game extends Component {
           </Player>
         </View>
         <View style={[styles.row, styles.plays]}>
-          <Text style={styles.play}>👍</Text>
+          <Text style={styles.play}>{this.state.message}</Text>
           <View transform={[{scaleX: -1}]}>
             <Text style={styles.play}>👉</Text>
           </View>

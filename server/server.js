@@ -11,5 +11,5 @@ server.listen(process.env.PORT, () =>
 const websocket = io(server);
 websocket.on('connection', socket => {
   console.log(`a client just joined on ${socket.id}`);
-  socket.on('message', message => console.log(message));
+  socket.on('message', socket.send);
 });
