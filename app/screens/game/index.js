@@ -39,10 +39,7 @@ export default class Game extends Component {
 
   state = {
     connected: false,
-    selections: {
-      a: '',
-      b: '',
-    },
+    game: null,
   };
 
   componentDidMount() {
@@ -61,42 +58,43 @@ export default class Game extends Component {
 
   onConnect = () => this.setState({connected: true});
 
-  onMessage = selections => this.setState({selections});
+  onMessage = game => this.setState({game});
 
   onDisconnect = () => this.setState({connected: false});
 
   quitGame = () => this.props.navigation.navigate('Menu');
 
   render() {
-    if (!this.state.connected) {
+    if (this.state.connected && this.state.game) {
       return (
-        <View style={[styles.container, styles.centered]}>
-          <Text style={styles.activityText}>Connecting...</Text>
-          <ActivityIndicator size="large" />
+        <View style={styles.container}>
+          <View style={styles.row}>
+            <Player lifeRemaining={2}>{this.state.game.player2}</Player>
+            <Text>{this.state.game.count}</Text>
+            <Button title="Quit game" onPress={this.quitGame} />
+            <Player other lifeRemaining={1}>
+              {this.state.game.player1}
+            </Player>
+          </View>
+          <View style={[styles.row, styles.plays]}>
+            <Text style={styles.play}>{this.state.game.selection1}</Text>
+            <View transform={[{scaleX: -1}]}>
+              <Text style={styles.play}>{this.state.game.selection2}</Text>
+            </View>
+          </View>
+          <View style={styles.row}>
+            <Option>👍</Option>
+            <Option>🙅</Option>
+            <Option>👉</Option>
+          </View>
         </View>
       );
     }
 
     return (
-      <View style={styles.container}>
-        <View style={styles.row}>
-          <Player lifeRemaining={2}>Me</Player>
-          <Button title="Quit game" onPress={this.quitGame} />
-          <Player other lifeRemaining={1}>
-            The bad guy
-          </Player>
-        </View>
-        <View style={[styles.row, styles.plays]}>
-          <Text style={styles.play}>{this.state.selections.a}</Text>
-          <View transform={[{scaleX: -1}]}>
-            <Text style={styles.play}>{this.state.selections.b}</Text>
-          </View>
-        </View>
-        <View style={styles.row}>
-          <Option>👍</Option>
-          <Option>🙅</Option>
-          <Option>👉</Option>
-        </View>
+      <View style={[styles.container, styles.centered]}>
+        <Text style={styles.activityText}>Connecting...</Text>
+        <ActivityIndicator size="large" />
       </View>
     );
   }
