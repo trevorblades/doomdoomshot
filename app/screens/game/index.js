@@ -87,9 +87,13 @@ export default class Game extends Component {
             </Player>
           </View>
           <View style={[styles.row, styles.plays]}>
-            <Text style={styles.play}>{this.state.game.selection1}</Text>
+            <Text style={styles.play}>
+              {this.state.game[this.state.game.player1]}
+            </Text>
             <View transform={[{scaleX: -1}]}>
-              <Text style={styles.play}>{this.state.game.selection2}</Text>
+              <Text style={styles.play}>
+                {this.state.game[this.state.game.player2]}
+              </Text>
             </View>
           </View>
           <View style={styles.row}>

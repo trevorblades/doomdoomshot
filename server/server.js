@@ -14,15 +14,12 @@ server.listen(process.env.PORT, () =>
 const client = redis.createClient();
 const spopAsync = promisify(client.spop).bind(client);
 const saddAsync = promisify(client.sadd).bind(client);
+const hsetAsync = promisify(client.hset).bind(client);
 const hmsetAsync = promisify(client.hmset).bind(client);
 const hgetallAsync = promisify(client.hgetall).bind(client);
 
 const websocket = io(server);
 websocket.on('connection', async socket => {
-  socket.on('message', message => {
-    console.log(`client says ${message}`);
-  });
-
   // Grab a random opponent and remove them from the queue
   const opponent = await spopAsync('queue');
   if (!opponent) {
@@ -31,9 +28,14 @@ websocket.on('connection', async socket => {
 
     const subscriber = client.duplicate();
     subscriber.subscribe(socket.id);
-    subscriber.on('message', async (channel, message) => {
-      const game = await hgetallAsync(message);
+    subscriber.on('message', async (channel, gameId) => {
+      const game = await hgetallAsync(gameId);
       socket.send(game);
+      socket.on('message', async message => {
+        await hsetAsync(gameId, socket.id, message);
+        const game = await hgetallAsync(gameId);
+        socket.send(game);
+      });
     });
 
     socket.on('disconnect', () => {
@@ -54,4 +56,10 @@ websocket.on('connection', async socket => {
   await hmsetAsync(gameId, game);
   client.publish(opponent, gameId);
   socket.send(game);
+
+  socket.on('message', async message => {
+    await hsetAsync(gameId, socket.id, message);
+    const game = await hgetallAsync(gameId);
+    socket.send(game);
+  });
 });
