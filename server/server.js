@@ -18,6 +18,18 @@ const hsetAsync = promisify(client.hset).bind(client);
 const hmsetAsync = promisify(client.hmset).bind(client);
 const hgetallAsync = promisify(client.hgetall).bind(client);
 
+function getGameHandler(id, socket) {
+  return async message => {
+    await hsetAsync(id, socket.id, message);
+    const game = await hgetallAsync(id);
+    socket
+      .send(game)
+      .to(game.player1)
+      .to(game.player2)
+      .send(game);
+  };
+}
+
 const websocket = io(server);
 websocket.on('connection', async socket => {
   // Grab a random opponent and remove them from the queue
@@ -31,12 +43,7 @@ websocket.on('connection', async socket => {
     subscriber.on('message', async (channel, gameId) => {
       const game = await hgetallAsync(gameId);
       socket.send(game);
-      socket.on('message', async message => {
-        await hsetAsync(gameId, socket.id, message);
-        const game = await hgetallAsync(gameId);
-        socket.send(game);
-        socket.to(game.player2).send(game);
-      });
+      socket.on('message', getGameHandler(gameId, socket));
     });
 
     socket.on('disconnect', () => {
@@ -57,11 +64,5 @@ websocket.on('connection', async socket => {
   await hmsetAsync(gameId, game);
   client.publish(opponent, gameId);
   socket.send(game);
-
-  socket.on('message', async message => {
-    await hsetAsync(gameId, socket.id, message);
-    const game = await hgetallAsync(gameId);
-    socket.send(game);
-    socket.to(game.player1).send(game);
-  });
+  socket.on('message', getGameHandler(gameId, socket));
 });
