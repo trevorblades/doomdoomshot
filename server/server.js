@@ -35,6 +35,7 @@ websocket.on('connection', async socket => {
         await hsetAsync(gameId, socket.id, message);
         const game = await hgetallAsync(gameId);
         socket.send(game);
+        socket.to(game.player2).send(game);
       });
     });
 
@@ -61,5 +62,6 @@ websocket.on('connection', async socket => {
     await hsetAsync(gameId, socket.id, message);
     const game = await hgetallAsync(gameId);
     socket.send(game);
+    socket.to(game.player1).send(game);
   });
 });
