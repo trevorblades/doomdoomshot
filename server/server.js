@@ -5,7 +5,6 @@ const io = require('socket.io');
 const redis = require('redis');
 const shortid = require('shortid');
 
-// TODO: color the console output--make it nice
 const app = express();
 const server = http.createServer(app);
 server.listen(process.env.PORT, () =>
@@ -20,26 +19,39 @@ const hgetallAsync = promisify(client.hgetall).bind(client);
 
 const websocket = io(server);
 websocket.on('connection', async socket => {
+  socket.on('message', message => {
+    console.log(`client says ${message}`);
+  });
+
   // Grab a random opponent and remove them from the queue
   const opponent = await spopAsync('queue');
   if (!opponent) {
     // If there aren't any opponents, add the current user to the queue
     await saddAsync('queue', socket.id);
+
+    const subscriber = client.duplicate();
+    subscriber.subscribe(socket.id);
+    subscriber.on('message', async (channel, message) => {
+      const game = await hgetallAsync(message);
+      socket.send(game);
+    });
+
+    socket.on('disconnect', () => {
+      subscriber.quit();
+      client.srem('queue', socket.id);
+    });
     return;
   }
 
   const gameId = shortid.generate();
-  await hmsetAsync(gameId, {
-    count: 3,
-    player1: socket.id,
-    player2: opponent,
-    selection1: '🙅',
-    selection2: '🙅‍',
-  });
+  const game = {
+    player1: opponent,
+    player2: socket.id,
+    [socket.id]: '🙅',
+    [opponent]: '🙅‍',
+  };
 
-  const game = await hgetallAsync(gameId);
+  await hmsetAsync(gameId, game);
+  client.publish(opponent, gameId);
   socket.send(game);
-  socket.on('message', message => {
-    console.log(`client says ${message}`);
-  });
 });

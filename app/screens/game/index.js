@@ -43,26 +43,37 @@ export default class Game extends Component {
   };
 
   componentDidMount() {
-    setTimeout(() => socket.open(), 2000);
+    socket.open();
     socket.on('connect', this.onConnect);
-    socket.on('message', this.onMessage);
+    socket.on('connect_error', this.onConnectError);
+    socket.on('reconnect', this.onReconnect);
     socket.on('disconnect', this.onDisconnect);
+    socket.on('message', this.onMessage);
   }
 
   componentWillUnmount() {
     socket.close();
     socket.off('connect', this.onConnect);
-    socket.off('message', this.onMessage);
+    socket.off('connect_error', this.onConnectError);
+    socket.off('reconnect', this.onReconnect);
     socket.off('disconnect', this.onDisconnect);
+    socket.off('message', this.onMessage);
   }
 
   onConnect = () => this.setState({connected: true});
 
+  onConnectError = error => console.log(error.message);
+
+  onReconnect = () => this.setState({connected: true});
+
+  onDisconnect = () => {
+    console.log('disconnected');
+    this.setState({connected: false});
+  };
+
   onMessage = game => this.setState({game});
 
-  onDisconnect = () => this.setState({connected: false});
-
-  quitGame = () => this.props.navigation.navigate('Menu');
+  quit = () => this.props.navigation.navigate('Menu');
 
   render() {
     if (this.state.connected && this.state.game) {
@@ -70,8 +81,7 @@ export default class Game extends Component {
         <View style={styles.container}>
           <View style={styles.row}>
             <Player lifeRemaining={2}>{this.state.game.player2}</Player>
-            <Text>{this.state.game.count}</Text>
-            <Button title="Quit game" onPress={this.quitGame} />
+            <Button title="Quit game" onPress={this.quit} />
             <Player other lifeRemaining={1}>
               {this.state.game.player1}
             </Player>
@@ -95,6 +105,7 @@ export default class Game extends Component {
       <View style={[styles.container, styles.centered]}>
         <Text style={styles.activityText}>Connecting...</Text>
         <ActivityIndicator size="large" />
+        <Button title="Cancel" onPress={this.quit} />
       </View>
     );
   }

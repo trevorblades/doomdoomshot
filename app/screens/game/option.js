@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class Option extends Component {
+class Option extends Component {
   static propTypes = {
     children: PropTypes.string.isRequired,
   };
@@ -30,3 +30,5 @@ export default class Option extends Component {
     );
   }
 }
+
+export default Option;
