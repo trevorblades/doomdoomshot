@@ -1,5 +1,6 @@
 import io from 'socket.io-client';
+import {API_URL} from './config';
 
-export default io('http://localhost:3000', {
+export default io(API_URL, {
   autoConnect: false,
 });
