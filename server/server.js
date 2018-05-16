@@ -39,6 +39,7 @@ websocket.on('connection', async socket => {
     // If there aren't any opponents, add the current user to the queue
     await saddAsync(QUEUE_KEY, socket.id);
 
+    // Subscribe to changes to queued status
     const sub = client.duplicate();
     sub.subscribe(socket.id);
     sub.on('message', async (channel, id) => {
@@ -66,6 +67,8 @@ websocket.on('connection', async socket => {
   };
 
   await hmsetAsync(game.id, game);
+
+  // Let the queued opponent know that a game has been found
   client.publish(opponent, game.id);
   setupGame(game, socket);
 });
