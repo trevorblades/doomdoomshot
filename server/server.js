@@ -37,17 +37,21 @@ function joinGame(game, socket) {
       socket.on('message', async message => {
         await hsetAsync(game.id, `${socket.id}.selected`, message);
         const state = await hgetallAsync(game.id);
-        dispatch(flatten.unflatten(state));
+        socket.send({
+          game: flatten.unflatten(state),
+        });
       });
 
       socket.on('disconnect', async () => {
         websocket.in(game.id).clients((error, clients) => {
+          // Find the other client and disconnect it, too
           const client = websocket.sockets.connected[clients[0]];
           if (client) {
             client.disconnect(true);
           }
         });
 
+        // This will only be > 0 after the initial deletion
         const deleted = await delAsync(game.id);
         if (deleted) {
           console.log('save the game');
