@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  activityText: {
+  status: {
     marginBottom: 12,
   },
   row: {
@@ -46,7 +46,7 @@ export default class Game extends Component {
 
   state = {
     game: null,
-    status: null,
+    status: 'Connecting',
   };
 
   componentDidMount() {
@@ -112,9 +112,7 @@ export default class Game extends Component {
 
     return (
       <View style={[styles.container, styles.centered]}>
-        <Text style={styles.activityText}>
-          {`${this.state.status || 'Connecting'}...`}
-        </Text>
+        <Text style={styles.status}>{`${this.state.status}...`}</Text>
         <ActivityIndicator size="large" />
         <Button title="Cancel" onPress={this.quit} />
       </View>
