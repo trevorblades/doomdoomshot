@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
+import TimerMixin from 'react-timer-mixin';
+import reactMixin from 'react-mixin';
 import {Alert, StyleSheet, View, Text, Button} from 'react-native';
 
 import Option from './option';
@@ -34,6 +36,7 @@ function getTickProgress(next, prev) {
   return elapsed / total;
 }
 
+@reactMixin.decorate(TimerMixin)
 export default class Hud extends Component {
   static propTypes = {
     game: PropTypes.object.isRequired,
@@ -51,7 +54,7 @@ export default class Hud extends Component {
   }
 
   componentDidMount() {
-    this.interval = setInterval(this.tick, 1000 / 60);
+    this.requestAnimationFrame(this.tick);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -62,14 +65,13 @@ export default class Hud extends Component {
     }
   }
 
-  componentWillUnmount() {
-    clearInterval(this.interval);
-  }
-
   tick = () =>
-    this.setState({
-      tickProgress: getTickProgress(this.props.lastTick, this.props.nextTick),
-    });
+    this.setState(
+      {
+        tickProgress: getTickProgress(this.props.lastTick, this.props.nextTick),
+      },
+      () => this.requestAnimationFrame(this.tick)
+    );
 
   forfeit = () => {
     Alert.alert(
