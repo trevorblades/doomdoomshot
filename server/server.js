@@ -8,9 +8,9 @@ const shortid = require('shortid');
 const {
   MAX_HEALTH,
   MAX_AMMO,
-  PLAY_RELOAD,
-  PLAY_BLOCK,
-  PLAY_SHOOT,
+  ACTION_RELOAD,
+  ACTION_BLOCK,
+  ACTION_SHOOT,
 } = require('../app/constants');
 
 const app = express();
@@ -73,7 +73,7 @@ function joinGame(game, socket) {
 const QUEUE_KEY = 'queue';
 const TICK_DURATION = 3000; // Time between ticks in milliseconds
 const defaultPlayerState = {
-  selected: PLAY_BLOCK,
+  selected: ACTION_BLOCK,
   health: MAX_HEALTH,
   ammo: 0,
 };
@@ -116,18 +116,18 @@ websocket.on('connection', async socket => {
     [state.player1, state.player2].forEach(key => {
       const player = state[key];
       switch (player.selected) {
-        case PLAY_RELOAD:
+        case ACTION_RELOAD:
           player.ammo = Math.min(MAX_AMMO, Number(player.ammo) + 1);
           break;
-        case PLAY_SHOOT:
+        case ACTION_SHOOT:
           player.ammo = Math.max(0, Number(player.ammo) - 1);
           break;
-        case PLAY_BLOCK:
+        case ACTION_BLOCK:
         default:
           break;
       }
 
-      player.play = player.selected;
+      player.action = player.selected;
       player.selected = defaultPlayerState.selected;
     });
 

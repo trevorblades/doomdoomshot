@@ -6,9 +6,14 @@ import reactMixin from 'react-mixin';
 import {Alert, StyleSheet, View, Text, Button} from 'react-native';
 
 import socket from '../../../socket';
-import {MAX_AMMO, PLAY_RELOAD, PLAY_SHOOT, PLAYS} from '../../../constants';
+import {
+  MAX_AMMO,
+  ACTION_RELOAD,
+  ACTION_SHOOT,
+  ACTIONS,
+} from '../../../constants';
 
-import Option from './option';
+import Action from './action';
 import Player from './player';
 
 const styles = StyleSheet.create({
@@ -25,11 +30,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  plays: {
+  actions: {
     marginTop: 'auto',
     marginBottom: 'auto',
   },
-  play: {
+  action: {
     fontSize: 100,
   },
 });
@@ -97,27 +102,27 @@ export default class Hud extends Component {
             {this.props.game.player2}
           </Player>
         </View>
-        <View style={[styles.row, styles.plays]}>
-          <Text style={styles.play}>{player1.play}</Text>
+        <View style={[styles.row, styles.actions]}>
+          <Text style={styles.action}>{player1.action}</Text>
           <View transform={[{scaleX: -1}]}>
-            <Text style={styles.play}>{player2.play}</Text>
+            <Text style={styles.action}>{player2.action}</Text>
           </View>
         </View>
         <View>
           <Text>{ammo}</Text>
         </View>
         <View style={styles.row}>
-          {PLAYS.map(play => (
-            <Option
+          {ACTIONS.map(play => (
+            <Action
               key={play}
               disabled={
-                (play === PLAY_RELOAD && ammo === MAX_AMMO) ||
-                (play === PLAY_SHOOT && !ammo)
+                (play === ACTION_RELOAD && ammo === MAX_AMMO) ||
+                (play === ACTION_SHOOT && !ammo)
               }
               selected={play === currentPlayer.selected}
             >
               {play}
-            </Option>
+            </Action>
           ))}
         </View>
       </View>
