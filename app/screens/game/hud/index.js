@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import TimerMixin from 'react-timer-mixin';
+import round from 'lodash/round';
 import reactMixin from 'react-mixin';
 import {Alert, StyleSheet, View, Text, Button} from 'react-native';
 
@@ -30,12 +31,6 @@ const styles = StyleSheet.create({
   },
 });
 
-function getTickProgress(next, prev) {
-  const total = next - prev;
-  const elapsed = Date.now() - prev;
-  return elapsed / total;
-}
-
 @reactMixin.decorate(TimerMixin)
 export default class Hud extends Component {
   static propTypes = {
@@ -45,25 +40,20 @@ export default class Hud extends Component {
     quit: PropTypes.func.isRequired,
   };
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      tickProgress: getTickProgress(props.lastTick, props.nextTick),
-    };
-  }
+  state = {
+    tickProgress: 1,
+  };
 
   componentDidMount() {
     this.requestAnimationFrame(this.tick);
   }
 
-  tick = () =>
-    this.setState(
-      {
-        tickProgress: getTickProgress(this.props.lastTick, this.props.nextTick),
-      },
-      () => this.requestAnimationFrame(this.tick)
-    );
+  tick = () => {
+    const total = this.props.nextTick - this.props.lastTick;
+    const elapsed = Date.now() - this.props.lastTick;
+    const tickProgress = round(1 - elapsed / total, 3);
+    this.setState({tickProgress}, () => this.requestAnimationFrame(this.tick));
+  };
 
   forfeit = () => {
     Alert.alert(
