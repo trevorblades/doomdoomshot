@@ -45,35 +45,23 @@ export default class Game extends Component {
   };
 
   state = {
-    connected: false,
     game: null,
+    status: null,
   };
 
   componentDidMount() {
     socket.open();
-    socket.on('connect', this.onConnect);
-    socket.on('connect_error', this.onConnectError);
-    socket.on('reconnect', this.onReconnect);
-    socket.on('disconnect', this.quit);
     socket.on('message', this.onMessage);
+    socket.on('disconnect', this.quit);
   }
 
   componentWillUnmount() {
     socket.close();
-    socket.off('connect', this.onConnect);
-    socket.off('connect_error', this.onConnectError);
-    socket.off('reconnect', this.onReconnect);
-    socket.off('disconnect', this.quit);
     socket.off('message', this.onMessage);
+    socket.off('disconnect', this.quit);
   }
 
-  onConnect = () => this.setState({connected: true});
-
-  onConnectError = error => console.log(error.message);
-
-  onReconnect = () => this.setState({connected: true});
-
-  onMessage = game => this.setState({game});
+  onMessage = state => this.setState(state);
 
   quit = () => this.props.navigation.navigate('Menu');
 
@@ -93,7 +81,7 @@ export default class Game extends Component {
   };
 
   render() {
-    if (this.state.connected && this.state.game) {
+    if (this.state.game) {
       return (
         <View style={styles.container}>
           <View style={styles.row}>
@@ -124,7 +112,9 @@ export default class Game extends Component {
 
     return (
       <View style={[styles.container, styles.centered]}>
-        <Text style={styles.activityText}>Connecting...</Text>
+        <Text style={styles.activityText}>
+          {`${this.state.status || 'Connecting'}...`}
+        </Text>
         <ActivityIndicator size="large" />
         <Button title="Cancel" onPress={this.quit} />
       </View>

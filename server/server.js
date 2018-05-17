@@ -17,14 +17,17 @@ const hsetAsync = promisify(client.hset).bind(client);
 const hmsetAsync = promisify(client.hmset).bind(client);
 const hgetallAsync = promisify(client.hgetall).bind(client);
 
-function dispatch(game) {
-  websocket.to(game.id).send(game);
+function dispatch(game, state = {}) {
+  websocket.to(game.id).send({
+    ...state,
+    game,
+  });
 }
 
 function startGame(game, socket) {
   socket.join(game.id);
-  dispatch(game);
 
+  dispatch(game, {status: 'Connected'});
   socket.on('message', async message => {
     await hsetAsync(game.id, socket.id, message);
     const reply = await hgetallAsync(game.id);
@@ -58,6 +61,7 @@ websocket.on('connection', async socket => {
     // Subscribe to changes to queued status
     const sub = client.duplicate();
     sub.subscribe(socket.id);
+    socket.send({status: 'Waiting for opponent...'});
     sub.on('message', async (channel, id) => {
       const game = await hgetallAsync(id);
       startGame(game, socket);
