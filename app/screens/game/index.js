@@ -1,6 +1,13 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {Button, Text, View, StyleSheet, ActivityIndicator} from 'react-native';
+import {
+  Alert,
+  Button,
+  Text,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 
 import socket from '../../socket';
 import Option from './option';
@@ -47,7 +54,7 @@ export default class Game extends Component {
     socket.on('connect', this.onConnect);
     socket.on('connect_error', this.onConnectError);
     socket.on('reconnect', this.onReconnect);
-    socket.on('disconnect', this.onDisconnect);
+    socket.on('disconnect', this.quit);
     socket.on('message', this.onMessage);
   }
 
@@ -56,7 +63,7 @@ export default class Game extends Component {
     socket.off('connect', this.onConnect);
     socket.off('connect_error', this.onConnectError);
     socket.off('reconnect', this.onReconnect);
-    socket.off('disconnect', this.onDisconnect);
+    socket.off('disconnect', this.quit);
     socket.off('message', this.onMessage);
   }
 
@@ -66,14 +73,24 @@ export default class Game extends Component {
 
   onReconnect = () => this.setState({connected: true});
 
-  onDisconnect = () => {
-    console.log('disconnected');
-    this.setState({connected: false});
-  };
-
   onMessage = game => this.setState({game});
 
   quit = () => this.props.navigation.navigate('Menu');
+
+  forfeit = () => {
+    Alert.alert(
+      'Are you sure?',
+      'If you leave now, this game will be counted as a loss.',
+      [
+        {text: 'Cancel'},
+        {
+          text: 'Forfeit',
+          onPress: this.quit,
+        },
+      ],
+      {cancelable: false}
+    );
+  };
 
   render() {
     if (this.state.connected && this.state.game) {
@@ -81,7 +98,7 @@ export default class Game extends Component {
         <View style={styles.container}>
           <View style={styles.row}>
             <Player lifeRemaining={2}>{this.state.game.player2}</Player>
-            <Button title="Quit game" onPress={this.quit} />
+            <Button title="Forfeit" onPress={this.forfeit} />
             <Player other lifeRemaining={1}>
               {this.state.game.player1}
             </Player>

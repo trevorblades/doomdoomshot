@@ -10,30 +10,46 @@ const server = http.createServer(app);
 const websocket = io(server);
 
 const client = redis.createClient();
+const delAsync = promisify(client.del).bind(client);
 const spopAsync = promisify(client.spop).bind(client);
 const saddAsync = promisify(client.sadd).bind(client);
 const hsetAsync = promisify(client.hset).bind(client);
 const hmsetAsync = promisify(client.hmset).bind(client);
 const hgetallAsync = promisify(client.hgetall).bind(client);
 
-function sendGame(game) {
+function dispatch(game) {
   websocket.to(game.id).send(game);
 }
 
-function setupGame(game, socket) {
+function startGame(game, socket) {
   socket.join(game.id);
-  sendGame(game);
+  dispatch(game);
 
   socket.on('message', async message => {
     await hsetAsync(game.id, socket.id, message);
     const reply = await hgetallAsync(game.id);
-    sendGame(reply);
+    dispatch(reply);
+  });
+
+  socket.on('disconnect', async () => {
+    websocket.in(game.id).clients((error, clients) => {
+      const client = websocket.sockets.connected[clients[0]];
+      if (client) {
+        client.disconnect(true);
+      }
+    });
+
+    const deleted = await delAsync(game.id);
+    if (deleted) {
+      console.log('save the game');
+    }
   });
 }
 
 const QUEUE_KEY = 'queue';
 websocket.on('connection', async socket => {
-  // Grab a random opponent and remove them from the queue
+  // A new connection was made! We need to try to match this player up with an
+  // opponent. First, we grab a random opponent and remove them from the queue
   const opponent = await spopAsync(QUEUE_KEY);
   if (!opponent) {
     // If there aren't any opponents, add the current user to the queue
@@ -43,14 +59,12 @@ websocket.on('connection', async socket => {
     const sub = client.duplicate();
     sub.subscribe(socket.id);
     sub.on('message', async (channel, id) => {
-      sub.unsubscribe();
-      sub.quit();
-
       const game = await hgetallAsync(id);
-      setupGame(game, socket);
+      startGame(game, socket);
     });
 
     socket.on('disconnect', () => {
+      // Clean things up after a queued user disconnects
       client.srem(QUEUE_KEY, socket.id);
       sub.unsubscribe();
       sub.quit();
@@ -58,6 +72,7 @@ websocket.on('connection', async socket => {
     return;
   }
 
+  // Since we were able to find an opponent, we set up the initial game state
   const game = {
     id: shortid.generate(),
     player1: opponent,
@@ -66,11 +81,10 @@ websocket.on('connection', async socket => {
     [opponent]: '🙅‍',
   };
 
+  // Save the initial game state and let the opponent know about it
   await hmsetAsync(game.id, game);
-
-  // Let the queued opponent know that a game has been found
   client.publish(opponent, game.id);
-  setupGame(game, socket);
+  startGame(game, socket);
 });
 
 server.listen(process.env.PORT, () =>
