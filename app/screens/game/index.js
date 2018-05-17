@@ -45,7 +45,6 @@ export default class Game extends Component {
   };
 
   state = {
-    game: null,
     status: 'Connecting',
   };
 
@@ -84,6 +83,9 @@ export default class Game extends Component {
     if (this.state.game) {
       return (
         <View style={styles.container}>
+          <View>
+            <Text>{this.state.nextTick}</Text>
+          </View>
           <View style={styles.row}>
             <Player lifeRemaining={2}>{this.state.game.player2}</Player>
             <Button title="Forfeit" onPress={this.forfeit} />

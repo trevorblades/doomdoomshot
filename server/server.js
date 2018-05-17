@@ -24,32 +24,41 @@ function dispatch(game, state = {}) {
   });
 }
 
-function startGame(game, socket) {
-  socket.join(game.id);
-
-  dispatch(game, {status: 'Connected'});
-  socket.on('message', async message => {
-    await hsetAsync(game.id, socket.id, message);
-    const reply = await hgetallAsync(game.id);
-    dispatch(reply);
-  });
-
-  socket.on('disconnect', async () => {
-    websocket.in(game.id).clients((error, clients) => {
-      const client = websocket.sockets.connected[clients[0]];
-      if (client) {
-        client.disconnect(true);
+function joinGame(game, socket) {
+  // Promisify this so that we can wait for all players to join before
+  // dispatching the initial game state
+  return new Promise(resolve =>
+    socket.join(game.id, error => {
+      if (error) {
+        throw error;
       }
-    });
 
-    const deleted = await delAsync(game.id);
-    if (deleted) {
-      console.log('save the game');
-    }
-  });
+      socket.on('message', async message => {
+        await hsetAsync(game.id, socket.id, message);
+      });
+
+      socket.on('disconnect', async () => {
+        websocket.in(game.id).clients((error, clients) => {
+          const client = websocket.sockets.connected[clients[0]];
+          if (client) {
+            client.disconnect(true);
+          }
+        });
+
+        const deleted = await delAsync(game.id);
+        if (deleted) {
+          console.log('save the game');
+        }
+      });
+
+      resolve();
+    })
+  );
 }
 
 const QUEUE_KEY = 'queue';
+const TICK_DURATION = 3000; // Time between ticks in milliseconds
+
 websocket.on('connection', async socket => {
   // A new connection was made! We need to try to match this player up with an
   // opponent. First, we grab a random opponent and remove them from the queue
@@ -57,22 +66,8 @@ websocket.on('connection', async socket => {
   if (!opponent) {
     // If there aren't any opponents, add the current user to the queue
     await saddAsync(QUEUE_KEY, socket.id);
-
-    // Subscribe to changes to queued status
-    const sub = client.duplicate();
-    sub.subscribe(socket.id);
     socket.send({status: 'Waiting for opponent...'});
-    sub.on('message', async (channel, id) => {
-      const game = await hgetallAsync(id);
-      startGame(game, socket);
-    });
-
-    socket.on('disconnect', () => {
-      // Clean things up after a queued user disconnects
-      client.srem(QUEUE_KEY, socket.id);
-      sub.unsubscribe();
-      sub.quit();
-    });
+    socket.on('disconnect', () => client.srem(QUEUE_KEY, socket.id));
     return;
   }
 
@@ -87,8 +82,26 @@ websocket.on('connection', async socket => {
 
   // Save the initial game state and let the opponent know about it
   await hmsetAsync(game.id, game);
-  client.publish(opponent, game.id);
-  startGame(game, socket);
+  await Promise.all([
+    joinGame(game, socket),
+    joinGame(game, websocket.sockets.connected[opponent]),
+  ]);
+
+  // Set up the game clock
+  const interval = setInterval(async () => {
+    const nextTick = Date.now() + TICK_DURATION;
+    const reply = await hgetallAsync(game.id);
+    dispatch(reply, {nextTick});
+  }, TICK_DURATION);
+
+  dispatch(game, {
+    status: 'Connected',
+    nextTick: Date.now() + TICK_DURATION,
+  });
+
+  socket.on('disconnect', () => {
+    clearInterval(interval);
+  });
 });
 
 server.listen(process.env.PORT, () =>
