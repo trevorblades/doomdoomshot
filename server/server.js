@@ -113,23 +113,40 @@ websocket.on('connection', async socket => {
 
     const flattened = await hgetallAsync(game.id);
     const state = flatten.unflatten(flattened);
-    [state.player1, state.player2].forEach(key => {
-      const player = state[key];
-      switch (player.selected) {
-        case ACTION_RELOAD:
-          player.ammo = Math.min(MAX_AMMO, Number(player.ammo) + 1);
-          break;
-        case ACTION_SHOOT:
-          player.ammo = Math.max(0, Number(player.ammo) - 1);
-          break;
-        case ACTION_BLOCK:
-        default:
-          break;
-      }
+    const other = {
+      [state.player1]: state.player2,
+      [state.player2]: state.player1,
+    };
 
-      player.action = player.selected;
-      player.selected = defaultPlayerState.selected;
-    });
+    [state.player1, state.player2]
+      .map(key => {
+        const player = state[key];
+        switch (player.selected) {
+          case ACTION_RELOAD:
+            player.ammo = Math.min(MAX_AMMO, Number(player.ammo) + 1);
+            break;
+          case ACTION_SHOOT:
+            player.ammo = Math.max(0, Number(player.ammo) - 1);
+            break;
+          default:
+            break;
+        }
+
+        const otherPlayer = state[other[key]];
+        if (
+          otherPlayer.selected === ACTION_SHOOT &&
+          (player.selected !== ACTION_BLOCK || otherPlayer.ammo === MAX_AMMO)
+        ) {
+          player.health = Math.max(0, Number(player.health) - 1);
+        }
+
+        return key;
+      })
+      .forEach(key => {
+        const player = state[key];
+        player.action = player.selected;
+        player.selected = defaultPlayerState.selected;
+      });
 
     await hmsetAsync(game.id, flatten(state));
     dispatch(state, {
