@@ -1,4 +1,5 @@
-module.exports.MAX_LIFE = 3;
+module.exports.MAX_HEALTH = 3;
+module.exports.MAX_AMMO = 5;
 
 module.exports.PLAY_RELOAD = '👍';
 module.exports.PLAY_BLOCK = '🙅';

@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import padEnd from 'lodash/padEnd';
 import repeat from 'lodash/repeat';
 import {View, Text, StyleSheet} from 'react-native';
-import {MAX_LIFE} from '../../../constants';
+import {MAX_HEALTH} from '../../../constants';
 
 const styles = StyleSheet.create({
   container: {
@@ -45,7 +45,7 @@ export default class Player extends Component {
         <Text style={this.props.other ? styles.rtl : null}>
           {padEnd(
             repeat(this.props.other ? '💙' : '❤️', this.props.lifeRemaining),
-            MAX_LIFE,
+            MAX_HEALTH,
             '🖤'
           )}
         </Text>

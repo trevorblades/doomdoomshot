@@ -10,6 +10,9 @@ const styles = StyleSheet.create({
     padding: 12,
     overflow: 'hidden',
   },
+  disabled: {
+    opacity: 0.5,
+  },
   selected: {
     backgroundColor: 'red',
   },
@@ -21,7 +24,12 @@ const styles = StyleSheet.create({
 export default class Option extends Component {
   static propTypes = {
     children: PropTypes.string.isRequired,
+    disabled: PropTypes.bool,
     selected: PropTypes.bool.isRequired,
+  };
+
+  static defaultProps = {
+    disabled: false,
   };
 
   onPress = () => socket.send(this.props.children);
@@ -29,8 +37,13 @@ export default class Option extends Component {
   render() {
     return (
       <Ripple
+        disabled={this.props.disabled}
         onPress={this.onPress}
-        style={[styles.container, this.props.selected ? styles.selected : null]}
+        style={[
+          styles.container,
+          this.props.disabled ? styles.disabled : null,
+          this.props.selected ? styles.selected : null,
+        ]}
       >
         <Text style={styles.text}>{this.props.children}</Text>
       </Ripple>

@@ -6,7 +6,7 @@ import reactMixin from 'react-mixin';
 import {Alert, StyleSheet, View, Text, Button} from 'react-native';
 
 import socket from '../../../socket';
-import {PLAYS} from '../../../constants';
+import {MAX_AMMO, PLAY_RELOAD, PLAY_SHOOT, PLAYS} from '../../../constants';
 
 import Option from './option';
 import Player from './player';
@@ -77,6 +77,7 @@ export default class Hud extends Component {
     const player1 = this.props.game[this.props.game.player1];
     const player2 = this.props.game[this.props.game.player2];
     const currentPlayer = this.props.game[socket.id];
+    const ammo = Number(currentPlayer.ammo);
     return (
       <View style={styles.container}>
         <View
@@ -103,11 +104,18 @@ export default class Hud extends Component {
           </View>
         </View>
         <View>
-          <Text>{currentPlayer.ammo}</Text>
+          <Text>{ammo}</Text>
         </View>
         <View style={styles.row}>
           {PLAYS.map(play => (
-            <Option key={play} selected={play === currentPlayer.selected}>
+            <Option
+              key={play}
+              disabled={
+                (play === PLAY_RELOAD && ammo === MAX_AMMO) ||
+                (play === PLAY_SHOOT && !ammo)
+              }
+              selected={play === currentPlayer.selected}
+            >
               {play}
             </Option>
           ))}

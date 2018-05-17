@@ -5,7 +5,13 @@ const flatten = require('flat');
 const io = require('socket.io');
 const redis = require('redis');
 const shortid = require('shortid');
-const {PLAY_RELOAD, PLAY_BLOCK, PLAY_SHOOT} = require('../app/constants');
+const {
+  MAX_HEALTH,
+  MAX_AMMO,
+  PLAY_RELOAD,
+  PLAY_BLOCK,
+  PLAY_SHOOT,
+} = require('../app/constants');
 
 const app = express();
 const server = http.createServer(app);
@@ -64,12 +70,11 @@ function joinGame(game, socket) {
   );
 }
 
-const MAX_AMMO = 5;
 const QUEUE_KEY = 'queue';
 const TICK_DURATION = 3000; // Time between ticks in milliseconds
 const defaultPlayerState = {
   selected: PLAY_BLOCK,
-  health: 3,
+  health: MAX_HEALTH,
   ammo: 0,
 };
 
