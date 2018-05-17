@@ -1,6 +1,7 @@
 const http = require('http');
 const {promisify} = require('util');
 const express = require('express');
+const flatten = require('flat');
 const io = require('socket.io');
 const redis = require('redis');
 const shortid = require('shortid');
@@ -28,13 +29,15 @@ function joinGame(game, socket) {
   // Promisify this so that we can wait for all players to join before
   // dispatching the initial game state
   return new Promise(resolve =>
-    socket.join(game.id, error => {
+    socket.join(game.id, async error => {
       if (error) {
         throw error;
       }
 
       socket.on('message', async message => {
-        await hsetAsync(game.id, socket.id, message);
+        await hsetAsync(game.id, `${socket.id}.selected`, message);
+        const state = await hgetallAsync(game.id);
+        dispatch(flatten.unflatten(state));
       });
 
       socket.on('disconnect', async () => {
@@ -56,8 +59,14 @@ function joinGame(game, socket) {
   );
 }
 
+const MAX_AMMO = 5;
 const QUEUE_KEY = 'queue';
 const TICK_DURATION = 3000; // Time between ticks in milliseconds
+const defaultPlayerState = {
+  selected: '🙅',
+  health: 3,
+  ammo: 0,
+};
 
 websocket.on('connection', async socket => {
   // A new connection was made! We need to try to match this player up with an
@@ -76,23 +85,36 @@ websocket.on('connection', async socket => {
     id: shortid.generate(),
     player1: opponent,
     player2: socket.id,
-    [socket.id]: '🙅',
-    [opponent]: '🙅‍',
+    [socket.id]: defaultPlayerState,
+    [opponent]: defaultPlayerState,
   };
 
   // Save the initial game state and let the opponent know about it
-  await hmsetAsync(game.id, game);
+  await hmsetAsync(game.id, flatten(game));
   await Promise.all([
     joinGame(game, socket),
     joinGame(game, websocket.sockets.connected[opponent]),
   ]);
 
-  // Set up the game clock
-  const interval = setInterval(async () => {
+  // Set up the game heartbeat
+  const heartbeat = setInterval(async () => {
     const now = Date.now();
     const nextTick = now + TICK_DURATION;
-    const reply = await hgetallAsync(game.id);
-    dispatch(reply, {
+
+    const flattened = await hgetallAsync(game.id);
+    const state = flatten.unflatten(flattened);
+    [state.player1, state.player2].forEach(key => {
+      const player = state[key];
+      if (player.selected === '👍') {
+        player.ammo = Math.min(MAX_AMMO, Number(player.ammo) + 1);
+      }
+
+      player.play = player.selected;
+      player.selected = defaultPlayerState.selected;
+    });
+
+    await hmsetAsync(game.id, flatten(state));
+    dispatch(state, {
       nextTick,
       lastTick: now,
     });
@@ -101,13 +123,13 @@ websocket.on('connection', async socket => {
   const now = Date.now();
   dispatch(game, {
     status: 'Connected',
+    ammo: 0,
     lastTick: now,
     nextTick: now + TICK_DURATION,
   });
 
-  socket.on('disconnect', () => {
-    clearInterval(interval);
-  });
+  // Clear the heartbeat when this socket disconnects
+  socket.on('disconnect', () => clearInterval(heartbeat));
 });
 
 server.listen(process.env.PORT, () =>

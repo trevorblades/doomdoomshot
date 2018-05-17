@@ -5,6 +5,7 @@ import round from 'lodash/round';
 import reactMixin from 'react-mixin';
 import {Alert, StyleSheet, View, Text, Button} from 'react-native';
 
+import socket from '../../../socket';
 import Option from './option';
 import Player from './player';
 
@@ -30,6 +31,8 @@ const styles = StyleSheet.create({
     fontSize: 100,
   },
 });
+
+const options = ['👍', '🙅', '👉'];
 
 @reactMixin.decorate(TimerMixin)
 export default class Hud extends Component {
@@ -71,6 +74,9 @@ export default class Hud extends Component {
   };
 
   render() {
+    const player1 = this.props.game[this.props.game.player1];
+    const player2 = this.props.game[this.props.game.player2];
+    const currentPlayer = this.props.game[socket.id];
     return (
       <View style={styles.container}>
         <View
@@ -82,26 +88,29 @@ export default class Hud extends Component {
           ]}
         />
         <View style={styles.row}>
-          <Player lifeRemaining={2}>{this.props.game.player2}</Player>
-          <Button title="Forfeit" onPress={this.forfeit} />
-          <Player other lifeRemaining={1}>
+          <Player lifeRemaining={Number(player1.health)}>
             {this.props.game.player1}
+          </Player>
+          <Button title="Forfeit" onPress={this.forfeit} />
+          <Player other lifeRemaining={Number(player2.health)}>
+            {this.props.game.player2}
           </Player>
         </View>
         <View style={[styles.row, styles.plays]}>
-          <Text style={styles.play}>
-            {this.props.game[this.props.game.player1]}
-          </Text>
+          <Text style={styles.play}>{player1.play}</Text>
           <View transform={[{scaleX: -1}]}>
-            <Text style={styles.play}>
-              {this.props.game[this.props.game.player2]}
-            </Text>
+            <Text style={styles.play}>{player2.play}</Text>
           </View>
         </View>
+        <View>
+          <Text>{currentPlayer.ammo}</Text>
+        </View>
         <View style={styles.row}>
-          <Option>👍</Option>
-          <Option>🙅</Option>
-          <Option>👉</Option>
+          {options.map(option => (
+            <Option key={option} selected={option === currentPlayer.selected}>
+              {option}
+            </Option>
+          ))}
         </View>
       </View>
     );
