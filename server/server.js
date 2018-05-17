@@ -5,6 +5,7 @@ const flatten = require('flat');
 const io = require('socket.io');
 const redis = require('redis');
 const shortid = require('shortid');
+const {PLAY_RELOAD, PLAY_BLOCK, PLAY_SHOOT} = require('../app/constants');
 
 const app = express();
 const server = http.createServer(app);
@@ -67,7 +68,7 @@ const MAX_AMMO = 5;
 const QUEUE_KEY = 'queue';
 const TICK_DURATION = 3000; // Time between ticks in milliseconds
 const defaultPlayerState = {
-  selected: '🙅',
+  selected: PLAY_BLOCK,
   health: 3,
   ammo: 0,
 };
@@ -109,8 +110,16 @@ websocket.on('connection', async socket => {
     const state = flatten.unflatten(flattened);
     [state.player1, state.player2].forEach(key => {
       const player = state[key];
-      if (player.selected === '👍') {
-        player.ammo = Math.min(MAX_AMMO, Number(player.ammo) + 1);
+      switch (player.selected) {
+        case PLAY_RELOAD:
+          player.ammo = Math.min(MAX_AMMO, Number(player.ammo) + 1);
+          break;
+        case PLAY_SHOOT:
+          player.ammo = Math.max(0, Number(player.ammo) - 1);
+          break;
+        case PLAY_BLOCK:
+        default:
+          break;
       }
 
       player.play = player.selected;
