@@ -57,14 +57,6 @@ export default class Hud extends Component {
     this.requestAnimationFrame(this.tick);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.nextTick !== this.props.nextTick) {
-      this.setState({
-        tickProgress: getTickProgress(nextProps.lastTick, nextProps.nextTick),
-      });
-    }
-  }
-
   tick = () =>
     this.setState(
       {
