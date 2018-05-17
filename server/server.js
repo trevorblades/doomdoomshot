@@ -158,7 +158,6 @@ websocket.on('connection', async socket => {
   const now = Date.now();
   dispatch(game, {
     status: 'Connected',
-    ammo: 0,
     lastTick: now,
     nextTick: now + TICK_DURATION,
   });
