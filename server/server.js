@@ -89,14 +89,20 @@ websocket.on('connection', async socket => {
 
   // Set up the game clock
   const interval = setInterval(async () => {
-    const nextTick = Date.now() + TICK_DURATION;
+    const now = Date.now();
+    const nextTick = now + TICK_DURATION;
     const reply = await hgetallAsync(game.id);
-    dispatch(reply, {nextTick});
+    dispatch(reply, {
+      nextTick,
+      lastTick: now,
+    });
   }, TICK_DURATION);
 
+  const now = Date.now();
   dispatch(game, {
     status: 'Connected',
-    nextTick: Date.now() + TICK_DURATION,
+    lastTick: now,
+    nextTick: now + TICK_DURATION,
   });
 
   socket.on('disconnect', () => {

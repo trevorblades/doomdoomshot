@@ -1,22 +1,13 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {
-  Alert,
-  Button,
-  Text,
-  View,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
-
+import {Button, Text, View, StyleSheet, ActivityIndicator} from 'react-native';
 import socket from '../../socket';
-import Option from './option';
-import Player from './player';
+import Hud from './hud';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+    padding: 36,
   },
   centered: {
     alignItems: 'center',
@@ -24,18 +15,6 @@ const styles = StyleSheet.create({
   },
   status: {
     marginBottom: 12,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  plays: {
-    marginTop: 'auto',
-    marginBottom: 'auto',
-  },
-  play: {
-    fontSize: 100,
   },
 });
 
@@ -64,52 +43,9 @@ export default class Game extends Component {
 
   quit = () => this.props.navigation.navigate('Menu');
 
-  forfeit = () => {
-    Alert.alert(
-      'Are you sure?',
-      'If you leave now, this game will be counted as a loss.',
-      [
-        {text: 'Cancel'},
-        {
-          text: 'Forfeit',
-          onPress: this.quit,
-        },
-      ],
-      {cancelable: false}
-    );
-  };
-
   render() {
     if (this.state.game) {
-      return (
-        <View style={styles.container}>
-          <View>
-            <Text>{this.state.nextTick}</Text>
-          </View>
-          <View style={styles.row}>
-            <Player lifeRemaining={2}>{this.state.game.player2}</Player>
-            <Button title="Forfeit" onPress={this.forfeit} />
-            <Player other lifeRemaining={1}>
-              {this.state.game.player1}
-            </Player>
-          </View>
-          <View style={[styles.row, styles.plays]}>
-            <Text style={styles.play}>
-              {this.state.game[this.state.game.player1]}
-            </Text>
-            <View transform={[{scaleX: -1}]}>
-              <Text style={styles.play}>
-                {this.state.game[this.state.game.player2]}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.row}>
-            <Option>👍</Option>
-            <Option>🙅</Option>
-            <Option>👉</Option>
-          </View>
-        </View>
-      );
+      return <Hud {...this.state} quit={this.quit} />;
     }
 
     return (

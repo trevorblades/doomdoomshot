@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import padEnd from 'lodash/padEnd';
 import repeat from 'lodash/repeat';
 import {View, Text, StyleSheet} from 'react-native';
-import {MAX_LIFE} from '../../constants';
+import {MAX_LIFE} from '../../../constants';
 
 const styles = StyleSheet.create({
   container: {
