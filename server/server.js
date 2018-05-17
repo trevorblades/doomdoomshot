@@ -71,7 +71,7 @@ function joinGame(game, socket) {
 }
 
 const QUEUE_KEY = 'queue';
-const TICK_DURATION = 3000; // Time between ticks in milliseconds
+const TICK_DURATION = 2000; // Time between ticks in milliseconds
 const defaultPlayerState = {
   selected: ACTION_BLOCK,
   health: MAX_HEALTH,
@@ -108,6 +108,7 @@ websocket.on('connection', async socket => {
 
   // Set up the game heartbeat
   const heartbeat = setInterval(async () => {
+    let gameOver = false;
     const now = Date.now();
     const nextTick = now + TICK_DURATION;
 
@@ -121,12 +122,13 @@ websocket.on('connection', async socket => {
     [state.player1, state.player2]
       .map(key => {
         const player = state[key];
+        const ammo = Number(player.ammo);
         switch (player.selected) {
           case ACTION_RELOAD:
-            player.ammo = Math.min(MAX_AMMO, Number(player.ammo) + 1);
+            player.ammo = Math.min(MAX_AMMO, ammo + 1);
             break;
           case ACTION_SHOOT:
-            player.ammo = Math.max(0, Number(player.ammo) - 1);
+            player.ammo = Math.max(0, ammo - 1);
             break;
           default:
             break;
@@ -135,9 +137,13 @@ websocket.on('connection', async socket => {
         const otherPlayer = state[other[key]];
         if (
           otherPlayer.selected === ACTION_SHOOT &&
-          (player.selected !== ACTION_BLOCK || otherPlayer.ammo === MAX_AMMO)
+          (player.selected !== ACTION_BLOCK ||
+            Number(otherPlayer.ammo) === MAX_AMMO)
         ) {
           player.health = Math.max(0, Number(player.health) - 1);
+          if (!player.health) {
+            gameOver = true;
+          }
         }
 
         return key;
@@ -153,6 +159,10 @@ websocket.on('connection', async socket => {
       nextTick,
       lastTick: now,
     });
+
+    if (gameOver) {
+      clearInterval(heartbeat);
+    }
   }, TICK_DURATION);
 
   const now = Date.now();
