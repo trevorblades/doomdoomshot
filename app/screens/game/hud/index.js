@@ -44,8 +44,12 @@ export default class Hud extends Component {
   static propTypes = {
     game: PropTypes.object.isRequired,
     lastTick: PropTypes.number.isRequired,
-    nextTick: PropTypes.number.isRequired,
+    nextTick: PropTypes.number,
     quit: PropTypes.func.isRequired,
+  };
+
+  static defaultProps = {
+    nextTick: null,
   };
 
   state = {
@@ -57,9 +61,14 @@ export default class Hud extends Component {
   }
 
   tick = () => {
+    if (!this.props.nextTick) {
+      this.setState({tickProgress: 1});
+      return;
+    }
+
     const total = this.props.nextTick - this.props.lastTick;
     const elapsed = Date.now() - this.props.lastTick;
-    const tickProgress = round(1 - elapsed / total, 3);
+    const tickProgress = round(elapsed / total, 3);
     this.setState({tickProgress}, () => this.requestAnimationFrame(this.tick));
   };
 
@@ -89,7 +98,7 @@ export default class Hud extends Component {
           style={[
             styles.progress,
             {
-              transform: [{scaleX: this.state.tickProgress}],
+              transform: [{scaleX: 1 - this.state.tickProgress}],
             },
           ]}
         />
