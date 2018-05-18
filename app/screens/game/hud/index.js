@@ -1,8 +1,5 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import TimerMixin from 'react-timer-mixin';
-import round from 'lodash/round';
-import reactMixin from 'react-mixin';
 import {Alert, StyleSheet, View, Text, Button} from 'react-native';
 
 import socket from '../../../socket';
@@ -15,15 +12,12 @@ import {
 
 import Action from './action';
 import Player from './player';
+import Progress from './progress';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-  },
-  progress: {
-    height: 8,
-    backgroundColor: 'black',
   },
   row: {
     flexDirection: 'row',
@@ -39,7 +33,6 @@ const styles = StyleSheet.create({
   },
 });
 
-@reactMixin.decorate(TimerMixin)
 export default class Hud extends Component {
   static propTypes = {
     game: PropTypes.object.isRequired,
@@ -50,26 +43,6 @@ export default class Hud extends Component {
 
   static defaultProps = {
     nextTick: null,
-  };
-
-  state = {
-    tickProgress: 1,
-  };
-
-  componentDidMount() {
-    this.requestAnimationFrame(this.tick);
-  }
-
-  tick = () => {
-    if (!this.props.nextTick) {
-      this.setState({tickProgress: 1});
-      return;
-    }
-
-    const total = this.props.nextTick - this.props.lastTick;
-    const elapsed = Date.now() - this.props.lastTick;
-    const tickProgress = round(elapsed / total, 3);
-    this.setState({tickProgress}, () => this.requestAnimationFrame(this.tick));
   };
 
   forfeit = () => {
@@ -94,13 +67,9 @@ export default class Hud extends Component {
     const ammo = Number(currentPlayer.ammo);
     return (
       <View style={styles.container}>
-        <View
-          style={[
-            styles.progress,
-            {
-              transform: [{scaleX: 1 - this.state.tickProgress}],
-            },
-          ]}
+        <Progress
+          nextTick={this.props.nextTick}
+          lastTick={this.props.lastTick}
         />
         <View style={styles.row}>
           <Player lifeRemaining={Number(player1.health)}>
