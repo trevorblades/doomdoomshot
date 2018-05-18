@@ -3,12 +3,7 @@ import React, {Component} from 'react';
 import {Alert, StyleSheet, View, Text, Button} from 'react-native';
 
 import socket from '../../../socket';
-import {
-  MAX_AMMO,
-  ACTION_RELOAD,
-  ACTION_SHOOT,
-  ACTIONS,
-} from '../../../constants';
+import {ACTION_RELOAD, ACTION_SHOOT, ACTIONS} from '../../../constants';
 
 import Action from './action';
 import Ammo from './ammo';
@@ -37,6 +32,8 @@ const styles = StyleSheet.create({
 export default class Hud extends Component {
   static propTypes = {
     game: PropTypes.object.isRequired,
+    maxAmmo: PropTypes.number.isRequired,
+    maxHealth: PropTypes.number.isRequired,
     lastTick: PropTypes.number.isRequired,
     nextTick: PropTypes.number,
     quit: PropTypes.func.isRequired,
@@ -76,11 +73,18 @@ export default class Hud extends Component {
           <Text>{this.props.game.round}</Text>
         </View>
         <View style={styles.row}>
-          <Player lifeRemaining={Number(player1.health)}>
+          <Player
+            lifeRemaining={Number(player1.health)}
+            maxHealth={this.props.maxHealth}
+          >
             {this.props.game.player1}
           </Player>
           <Button title="Forfeit" onPress={this.forfeit} />
-          <Player other lifeRemaining={Number(player2.health)}>
+          <Player
+            other
+            lifeRemaining={Number(player2.health)}
+            maxHealth={this.props.maxHealth}
+          >
             {this.props.game.player2}
           </Player>
         </View>
@@ -90,13 +94,13 @@ export default class Hud extends Component {
             <Text style={styles.action}>{player2.action}</Text>
           </View>
         </View>
-        <Ammo ammo={ammo} />
+        <Ammo ammo={ammo} maxAmmo={this.props.maxAmmo} />
         <View style={styles.row}>
           {ACTIONS.map(play => (
             <Action
               key={play}
               disabled={
-                (play === ACTION_RELOAD && ammo === MAX_AMMO) ||
+                (play === ACTION_RELOAD && ammo === this.props.maxAmmo) ||
                 (play === ACTION_SHOOT && !ammo)
               }
               selected={play === currentPlayer.selected}

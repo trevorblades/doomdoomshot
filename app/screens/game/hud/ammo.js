@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import React, {Component, Fragment} from 'react';
 import {StyleSheet, View, Animated, Easing} from 'react-native';
 import {size, transparentize} from 'polished';
-import {MAX_AMMO} from '../../../constants';
 
 const radius = 16;
 const bulletRadius = radius / 5;
@@ -38,10 +37,10 @@ const styles = StyleSheet.create({
   },
 });
 
-const degreesPerBullet = 360 / MAX_AMMO;
 export default class Ammo extends Component {
   static propTypes = {
     ammo: PropTypes.number.isRequired,
+    maxAmmo: PropTypes.number.isRequired,
   };
 
   state = {
@@ -51,7 +50,7 @@ export default class Ammo extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.ammo !== this.props.ammo) {
       Animated.timing(this.state.rotation, {
-        toValue: Math.max(0, nextProps.ammo - 1) / MAX_AMMO,
+        toValue: Math.max(0, nextProps.ammo - 1) / this.props.maxAmmo,
         easing: Easing.bounce,
         duration: 500,
         useNativeDriver: true,
@@ -61,8 +60,9 @@ export default class Ammo extends Component {
 
   renderBullets() {
     const bullets = [];
-    for (let i = 0; i < MAX_AMMO; i++) {
-      const filledStyle = i === MAX_AMMO - 1 && styles.gold;
+    const degreesPerBullet = 360 / this.props.maxAmmo;
+    for (let i = 0; i < this.props.maxAmmo; i++) {
+      const filledStyle = i === this.props.maxAmmo - 1 && styles.gold;
       bullets.push(
         <Fragment key={i}>
           <View

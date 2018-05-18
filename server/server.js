@@ -5,13 +5,7 @@ const flatten = require('flat');
 const io = require('socket.io');
 const redis = require('redis');
 const shortid = require('shortid');
-const {
-  MAX_HEALTH,
-  MAX_AMMO,
-  ACTION_RELOAD,
-  ACTION_BLOCK,
-  ACTION_SHOOT,
-} = require('../app/constants');
+const {ACTION_RELOAD, ACTION_BLOCK, ACTION_SHOOT} = require('../app/constants');
 
 const app = express();
 const server = http.createServer(app);
@@ -73,6 +67,8 @@ function joinGame(game, socket) {
 const QUEUE_KEY = 'queue';
 const TICK_DURATION = 3000; // Time between ticks in milliseconds
 const MAX_ROUNDS = 100;
+const MAX_AMMO = 5;
+const MAX_HEALTH = 3;
 const defaultPlayerState = {
   selected: ACTION_BLOCK,
   health: MAX_HEALTH,
@@ -174,6 +170,9 @@ websocket.on('connection', async socket => {
   const now = Date.now();
   dispatch(game, {
     status: 'Connected',
+    maxRounds: MAX_ROUNDS,
+    maxAmmo: MAX_AMMO,
+    maxHealth: MAX_HEALTH,
     lastTick: now,
     nextTick: now + TICK_DURATION,
   });
