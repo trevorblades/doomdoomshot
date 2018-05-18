@@ -1,15 +1,13 @@
 import PropTypes from 'prop-types';
 import React, {Component, Fragment} from 'react';
 import {StyleSheet, View, Animated, Easing} from 'react-native';
-import {size, transparentize, darken} from 'polished';
+import {size, transparentize} from 'polished';
 import {MAX_AMMO} from '../../../constants';
 
-const radius = 24;
+const radius = 16;
 const bulletRadius = radius / 5;
 const pinSize = (radius - bulletRadius * 2) / 2;
 const pinRadius = pinSize / 2;
-const grey = 'grey';
-const gold = 'gold';
 const styles = StyleSheet.create({
   container: {
     ...size(radius * 2),
@@ -28,21 +26,14 @@ const styles = StyleSheet.create({
   },
   bullet: {
     ...size(bulletRadius * 2),
-    borderWidth: 2,
     borderRadius: bulletRadius,
     top: radius - bulletRadius,
     left: radius - bulletRadius,
   },
-  regular: {
-    borderColor: darken(0.15, grey),
-    backgroundColor: grey,
-  },
   gold: {
-    borderColor: darken(0.15, gold),
-    backgroundColor: gold,
+    backgroundColor: 'red',
   },
-  notch: {
-    borderWidth: 0,
+  empty: {
     backgroundColor: 'white',
   },
 });
@@ -71,14 +62,14 @@ export default class Ammo extends Component {
   renderBullets() {
     const bullets = [];
     for (let i = 0; i < MAX_AMMO; i++) {
-      const filledStyle = i === MAX_AMMO - 1 ? styles.gold : styles.regular;
+      const filledStyle = i === MAX_AMMO - 1 && styles.gold;
       bullets.push(
         <Fragment key={i}>
           <View
             style={[
               styles.circle,
               styles.bullet,
-              i >= this.props.ammo ? null : filledStyle,
+              i >= this.props.ammo ? styles.empty : filledStyle,
               {
                 transform: [
                   {rotate: `${degreesPerBullet * i}deg`},
@@ -91,7 +82,7 @@ export default class Ammo extends Component {
             style={[
               styles.circle,
               styles.bullet,
-              styles.notch,
+              styles.empty,
               {
                 transform: [
                   {rotate: `${degreesPerBullet * i + degreesPerBullet / 2}deg`},
