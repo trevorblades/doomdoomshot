@@ -11,6 +11,7 @@ import {
 } from '../../../constants';
 
 import Action from './action';
+import Ammo from './ammo';
 import Player from './player';
 import Progress from './progress';
 
@@ -89,9 +90,7 @@ export default class Hud extends Component {
             <Text style={styles.action}>{player2.action}</Text>
           </View>
         </View>
-        <View>
-          <Text>{ammo}</Text>
-        </View>
+        <Ammo ammo={ammo} />
         <View style={styles.row}>
           {ACTIONS.map(play => (
             <Action

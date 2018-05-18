@@ -165,6 +165,7 @@ websocket.on('connection', async socket => {
 
     await hmsetAsync(game.id, flatten(state));
     dispatch(state, {
+      status: gameOver ? 'Completed' : 'Playing',
       nextTick: gameOver ? null : nextTick,
       lastTick: now,
     });
