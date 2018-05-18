@@ -10,6 +10,9 @@ const pinRadius = pinSize / 2;
 const styles = StyleSheet.create({
   container: {
     ...size(radius * 2),
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginBottom: 16,
     borderRadius: radius,
     backgroundColor: transparentize(0.8, 'black'),
   },
