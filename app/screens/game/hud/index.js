@@ -34,6 +34,7 @@ export default class Hud extends Component {
     game: PropTypes.object.isRequired,
     maxAmmo: PropTypes.number.isRequired,
     maxHealth: PropTypes.number.isRequired,
+    maxRounds: PropTypes.number.isRequired,
     lastTick: PropTypes.number.isRequired,
     nextTick: PropTypes.number,
     quit: PropTypes.func.isRequired,
@@ -70,7 +71,9 @@ export default class Hud extends Component {
           lastTick={this.props.lastTick}
         />
         <View>
-          <Text>{this.props.game.round}</Text>
+          <Text>
+            {this.props.game.round} / {this.props.maxRounds}
+          </Text>
         </View>
         <View style={styles.row}>
           <Player
