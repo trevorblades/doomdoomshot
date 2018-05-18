@@ -72,6 +72,7 @@ function joinGame(game, socket) {
 
 const QUEUE_KEY = 'queue';
 const TICK_DURATION = 3000; // Time between ticks in milliseconds
+const MAX_ROUNDS = 100;
 const defaultPlayerState = {
   selected: ACTION_BLOCK,
   health: MAX_HEALTH,
@@ -93,6 +94,7 @@ websocket.on('connection', async socket => {
   // Since we were able to find an opponent, we set up the initial game state
   const game = {
     id: shortid.generate(),
+    round: 1,
     player1: opponent,
     player2: socket.id,
     [socket.id]: defaultPlayerState,
@@ -108,12 +110,13 @@ websocket.on('connection', async socket => {
 
   // Set up the game heartbeat
   const heartbeat = setInterval(async () => {
-    let gameOver = false;
     const now = Date.now();
     const nextTick = now + TICK_DURATION;
 
     const flattened = await hgetallAsync(game.id);
     const state = flatten.unflatten(flattened);
+    const nextRound = Number(state.round) + 1;
+    let gameOver = nextRound > MAX_ROUNDS;
     const other = {
       [state.player1]: state.player2,
       [state.player2]: state.player1,
@@ -154,15 +157,17 @@ websocket.on('connection', async socket => {
         player.selected = defaultPlayerState.selected;
       });
 
+    if (gameOver) {
+      clearInterval(heartbeat);
+    } else {
+      state.round = nextRound;
+    }
+
     await hmsetAsync(game.id, flatten(state));
     dispatch(state, {
       nextTick: gameOver ? null : nextTick,
       lastTick: now,
     });
-
-    if (gameOver) {
-      clearInterval(heartbeat);
-    }
   }, TICK_DURATION);
 
   const now = Date.now();

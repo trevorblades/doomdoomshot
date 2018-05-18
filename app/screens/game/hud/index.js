@@ -71,6 +71,9 @@ export default class Hud extends Component {
           nextTick={this.props.nextTick}
           lastTick={this.props.lastTick}
         />
+        <View>
+          <Text>{this.props.game.round}</Text>
+        </View>
         <View style={styles.row}>
           <Player lifeRemaining={Number(player1.health)}>
             {this.props.game.player1}
