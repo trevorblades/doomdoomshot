@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import Ripple from 'react-native-material-ripple';
 import {Text, StyleSheet} from 'react-native';
+import {transparentize} from 'polished';
 import socket from '../../../socket';
 
 const styles = StyleSheet.create({
@@ -14,7 +15,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   selected: {
-    backgroundColor: 'red',
+    backgroundColor: transparentize(0.8, 'black'),
   },
   text: {
     fontSize: 50,

@@ -71,7 +71,7 @@ function joinGame(game, socket) {
 }
 
 const QUEUE_KEY = 'queue';
-const TICK_DURATION = 2000; // Time between ticks in milliseconds
+const TICK_DURATION = 3000; // Time between ticks in milliseconds
 const defaultPlayerState = {
   selected: ACTION_BLOCK,
   health: MAX_HEALTH,
