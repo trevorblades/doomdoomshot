@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: 16,
     borderRadius,
-    backgroundColor: transparentize(0.8, 'black'),
+    backgroundColor: transparentize(0.85, 'black'),
     overflow: 'hidden',
   },
   bar: {

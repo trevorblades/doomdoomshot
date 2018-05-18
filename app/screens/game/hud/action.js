@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   selected: {
-    backgroundColor: transparentize(0.8, 'black'),
+    backgroundColor: transparentize(0.85, 'black'),
   },
   text: {
     fontSize: 50,
