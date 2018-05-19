@@ -40,20 +40,27 @@ const styles = StyleSheet.create({
   },
 });
 
+function ammoToAngle(ammo, max) {
+  return (ammo - 1) / max;
+}
+
 export default class Ammo extends Component {
   static propTypes = {
     ammo: PropTypes.number.isRequired,
     maxAmmo: PropTypes.number.isRequired,
   };
 
-  state = {
-    rotation: new Animated.Value(0),
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      rotation: new Animated.Value(ammoToAngle(props.ammo, props.maxAmmo)),
+    };
+  }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.ammo !== this.props.ammo) {
       Animated.timing(this.state.rotation, {
-        toValue: Math.max(0, nextProps.ammo - 1) / this.props.maxAmmo,
+        toValue: ammoToAngle(nextProps.ammo, nextProps.maxAmmo),
         easing: Easing.bounce,
         duration: 500,
         useNativeDriver: true,
