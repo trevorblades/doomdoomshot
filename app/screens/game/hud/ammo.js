@@ -3,7 +3,7 @@ import React, {Component, Fragment} from 'react';
 import {StyleSheet, View, Animated, Easing} from 'react-native';
 import {size, transparentize} from 'polished';
 
-const radius = 16;
+const radius = 24;
 const bulletRadius = radius / 5;
 const pinSize = (radius - bulletRadius * 2) / 2;
 const pinRadius = pinSize / 2;
@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
     ...size(radius * 2),
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: 16,
+    marginBottom: 24,
     borderRadius: radius,
     backgroundColor: transparentize(0.8, 'black'),
   },
