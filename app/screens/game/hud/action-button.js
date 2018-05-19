@@ -2,27 +2,29 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import Ripple from 'react-native-material-ripple';
 import {Text, StyleSheet} from 'react-native';
-import {transparentize} from 'polished';
+import {size} from 'polished';
 import socket from '../../../socket';
 
 const styles = StyleSheet.create({
   container: {
+    ...size(84),
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 24,
-    padding: 12,
     overflow: 'hidden',
   },
   disabled: {
     opacity: 0.5,
   },
   selected: {
-    backgroundColor: transparentize(0.85, 'black'),
+    backgroundColor: 'lightgrey',
   },
   text: {
     fontSize: 50,
   },
 });
 
-export default class Action extends Component {
+export default class ActionButton extends Component {
   static propTypes = {
     children: PropTypes.string.isRequired,
     disabled: PropTypes.bool,

@@ -1,19 +1,13 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {Animated, View, StyleSheet} from 'react-native';
-import {transparentize} from 'polished';
+import {Animated, View, StyleSheet, Easing} from 'react-native';
 
-const height = 4;
-const borderRadius = height / 2;
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
-    borderRadius,
-    backgroundColor: transparentize(0.85, 'black'),
-    overflow: 'hidden',
+    backgroundColor: 'lightgrey',
   },
   bar: {
-    height,
+    height: 4,
     width: '200%',
     backgroundColor: 'black',
   },
@@ -48,6 +42,7 @@ export default class Progress extends Component {
   animate = nextTick =>
     Animated.timing(this.state.percent, {
       toValue: 1,
+      easing: Easing.linear,
       duration: nextTick - Date.now(),
       useNativeDriver: true,
     }).start();

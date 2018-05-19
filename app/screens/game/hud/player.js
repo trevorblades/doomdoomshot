@@ -1,24 +1,25 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import padEnd from 'lodash/padEnd';
-import repeat from 'lodash/repeat';
+import {MaterialIcons} from '@expo/vector-icons';
 import {View, Text, StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    width: 0,
+  alignRight: {
+    alignItems: 'flex-end',
   },
   name: {
     marginBottom: 4,
     fontWeight: 'bold',
     fontSize: 16,
   },
-  alignRight: {
-    textAlign: 'right',
+  hearts: {
+    flexDirection: 'row',
   },
   rtl: {
-    writingDirection: 'rtl',
+    flexDirection: 'row-reverse',
+  },
+  heart: {
+    marginRight: 2,
   },
 });
 
@@ -27,28 +28,38 @@ export default class Player extends Component {
     children: PropTypes.string.isRequired,
     lifeRemaining: PropTypes.number.isRequired,
     maxHealth: PropTypes.number.isRequired,
-    other: PropTypes.bool,
+    opponent: PropTypes.bool,
   };
 
   static defaultProps = {
-    other: false,
+    opponent: false,
   };
+
+  renderHearts() {
+    const hearts = [];
+    const color = this.props.opponent ? 'blue' : 'red';
+    for (let i = 0; i < this.props.maxHealth; i++) {
+      hearts.push(
+        <MaterialIcons
+          key={i}
+          name="favorite"
+          size={16}
+          style={styles.heart}
+          color={this.props.lifeRemaining > i ? color : 'black'}
+        />
+      );
+    }
+
+    return hearts;
+  }
 
   render() {
     return (
-      <View style={styles.container}>
-        <Text
-          style={[styles.name, this.props.other ? styles.alignRight : null]}
-        >
-          {this.props.children}
-        </Text>
-        <Text style={this.props.other ? styles.rtl : null}>
-          {padEnd(
-            repeat(this.props.other ? '💙' : '❤️', this.props.lifeRemaining),
-            this.props.maxHealth,
-            '🖤'
-          )}
-        </Text>
+      <View style={this.props.opponent ? styles.alignRight : null}>
+        <Text style={styles.name}>{this.props.children}</Text>
+        <View style={[styles.hearts, this.props.opponent ? styles.rtl : null]}>
+          {this.renderHearts()}
+        </View>
       </View>
     );
   }

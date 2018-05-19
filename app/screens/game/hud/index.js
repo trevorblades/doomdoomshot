@@ -1,31 +1,42 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {Alert, StyleSheet, View, Text, Button} from 'react-native';
+import {Alert, StyleSheet, View, Text} from 'react-native';
 
 import socket from '../../../socket';
 import {ACTION_RELOAD, ACTION_SHOOT, ACTIONS} from '../../../constants';
 
-import Action from './action';
-import Ammo from './ammo';
+import ActionButton from './action-button';
+import Bullets from './bullets';
 import Player from './player';
 import Progress from './progress';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'space-between',
+  },
+  padded: {
     padding: 24,
   },
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
   },
-  actions: {
-    marginTop: 'auto',
-    marginBottom: 'auto',
+  rowTop: {
+    paddingBottom: 0,
+  },
+  rowBottom: {
+    paddingTop: 0,
+  },
+  actionButtons: {
+    marginTop: 16,
   },
   action: {
-    fontSize: 100,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+  actionText: {
+    fontSize: 80,
   },
 });
 
@@ -62,55 +73,60 @@ export default class Hud extends Component {
   render() {
     const player1 = this.props.game[this.props.game.player1];
     const player2 = this.props.game[this.props.game.player2];
+
+    // TODO: make this socket reaching-in more declarative or something and
+    // respond to connect events, set the socket in state, pass it down, etc.
     const currentPlayer = this.props.game[socket.id];
     const ammo = Number(currentPlayer.ammo);
     return (
       <View style={styles.container}>
-        <Progress
-          nextTick={this.props.nextTick}
-          lastTick={this.props.lastTick}
-        />
-        <View>
+        <View style={[styles.row, styles.padded, styles.rowTop]}>
+          {/* <Button title="Forfeit" onPress={this.forfeit} /> */}
           <Text>
-            {this.props.game.round} / {this.props.maxRounds}
+            Round {this.props.game.round} / {this.props.maxRounds}
           </Text>
-        </View>
-        <View style={styles.row}>
           <Player
-            lifeRemaining={Number(player1.health)}
-            maxHealth={this.props.maxHealth}
-          >
-            {this.props.game.player1}
-          </Player>
-          <Button title="Forfeit" onPress={this.forfeit} />
-          <Player
-            other
+            opponent
             lifeRemaining={Number(player2.health)}
             maxHealth={this.props.maxHealth}
           >
             {this.props.game.player2}
           </Player>
         </View>
-        <View style={[styles.row, styles.actions]}>
-          <Text style={styles.action}>{player1.action}</Text>
-          <View transform={[{scaleX: -1}]}>
-            <Text style={styles.action}>{player2.action}</Text>
-          </View>
+        <View style={styles.action} transform={[{scaleX: -1}]}>
+          <Text style={styles.actionText}>{player2.action}</Text>
         </View>
-        <Ammo ammo={ammo} maxAmmo={this.props.maxAmmo} />
-        <View style={styles.row}>
-          {ACTIONS.map(play => (
-            <Action
-              key={play}
-              disabled={
-                (play === ACTION_RELOAD && ammo === this.props.maxAmmo) ||
-                (play === ACTION_SHOOT && !ammo)
-              }
-              selected={play === currentPlayer.selected}
+        <Progress
+          nextTick={this.props.nextTick}
+          lastTick={this.props.lastTick}
+        />
+        <View style={styles.action}>
+          <Text style={styles.actionText}>{player1.action}</Text>
+        </View>
+        <View style={[styles.padded, styles.rowBottom]}>
+          <View style={styles.row}>
+            <Player
+              lifeRemaining={Number(player1.health)}
+              maxHealth={this.props.maxHealth}
             >
-              {play}
-            </Action>
-          ))}
+              {this.props.game.player1}
+            </Player>
+            <Bullets ammo={ammo} maxAmmo={this.props.maxAmmo} />
+          </View>
+          <View style={[styles.row, styles.actionButtons]}>
+            {ACTIONS.map(action => (
+              <ActionButton
+                key={action}
+                disabled={
+                  (action === ACTION_RELOAD && ammo === this.props.maxAmmo) ||
+                  (action === ACTION_SHOOT && !ammo)
+                }
+                selected={action === currentPlayer.selected}
+              >
+                {action}
+              </ActionButton>
+            ))}
+          </View>
         </View>
       </View>
     );
