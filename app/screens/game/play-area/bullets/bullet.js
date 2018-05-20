@@ -57,13 +57,19 @@ export default class Bullet extends Component {
             {
               translateX: this.state.animation.interpolate({
                 inputRange: [-1, 0, 1],
-                outputRange: [0, 0, size * 6],
+                outputRange: [0, 0, size * -6],
               }),
             },
             {
               translateY: this.state.animation.interpolate({
+                inputRange: [-1, 0, 0.666, 1],
+                outputRange: [size / 2, 0, size * -6, size * -5],
+              }),
+            },
+            {
+              rotate: this.state.animation.interpolate({
                 inputRange: [-1, 0, 1],
-                outputRange: [size / 2, 0, size * -6],
+                outputRange: ['0deg', '0deg', '-540deg'],
               }),
             },
           ],
