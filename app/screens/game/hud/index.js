@@ -4,12 +4,14 @@ import {StyleSheet, View, Text} from 'react-native';
 
 import socket from '../../../socket';
 import {ACTION_RELOAD, ACTION_SHOOT, ACTIONS} from '../../../common';
+import {FONT_FAMILY_SEMI_BOLD} from '../../../constants';
 
 import ActionButton from './action-button';
 import Bullets from './bullets';
 import Player from './player';
 import Progress from './progress';
 
+const roundHeight = 20;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -29,7 +31,17 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   round: {
-    fontSize: 12,
+    alignSelf: 'flex-start',
+    justifyContent: 'center',
+    height: roundHeight,
+    paddingHorizontal: 12,
+    borderRadius: roundHeight / 2,
+    backgroundColor: 'black',
+  },
+  roundText: {
+    fontFamily: FONT_FAMILY_SEMI_BOLD,
+    fontSize: 11,
+    color: 'white',
   },
   actionButtons: {
     marginTop: 16,
@@ -68,16 +80,18 @@ export default class Hud extends Component {
     return (
       <View style={styles.container}>
         <View style={[styles.row, styles.padded, styles.rowTop]}>
-          <Text style={styles.round}>
-            Round {this.props.game.round} / {this.props.maxRounds}
-          </Text>
           <Player
-            opponent
+            color="blue"
             lifeRemaining={Number(player2.health)}
             maxHealth={this.props.maxHealth}
           >
             {this.props.game.player2}
           </Player>
+          <View style={styles.round}>
+            <Text style={styles.roundText}>
+              {this.props.game.round} / {this.props.maxRounds}
+            </Text>
+          </View>
         </View>
         <View style={styles.action} transform={[{scaleX: -1}]}>
           <Text style={styles.actionText}>{player2.action}</Text>

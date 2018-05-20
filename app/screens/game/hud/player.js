@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {MaterialIcons} from '@expo/vector-icons';
 import {View, Text, StyleSheet} from 'react-native';
+import {FONT_FAMILY_BOLD} from '../../../constants';
 
 const styles = StyleSheet.create({
   alignRight: {
@@ -9,6 +10,7 @@ const styles = StyleSheet.create({
   },
   name: {
     marginBottom: 4,
+    fontFamily: FONT_FAMILY_BOLD,
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -28,16 +30,15 @@ export default class Player extends Component {
     children: PropTypes.string.isRequired,
     lifeRemaining: PropTypes.number.isRequired,
     maxHealth: PropTypes.number.isRequired,
-    opponent: PropTypes.bool,
+    color: PropTypes.string,
   };
 
   static defaultProps = {
-    opponent: false,
+    color: 'red',
   };
 
   renderHearts() {
     const hearts = [];
-    const color = this.props.opponent ? 'blue' : 'red';
     for (let i = 0; i < this.props.maxHealth; i++) {
       hearts.push(
         <MaterialIcons
@@ -45,7 +46,7 @@ export default class Player extends Component {
           name="favorite"
           size={16}
           style={styles.heart}
-          color={this.props.lifeRemaining > i ? color : 'black'}
+          color={this.props.lifeRemaining > i ? this.props.color : 'black'}
         />
       );
     }
@@ -55,11 +56,9 @@ export default class Player extends Component {
 
   render() {
     return (
-      <View style={this.props.opponent ? styles.alignRight : null}>
+      <View>
         <Text style={styles.name}>{this.props.children}</Text>
-        <View style={[styles.hearts, this.props.opponent ? styles.rtl : null]}>
-          {this.renderHearts()}
-        </View>
+        <View style={styles.hearts}>{this.renderHearts()}</View>
       </View>
     );
   }

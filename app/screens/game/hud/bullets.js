@@ -6,8 +6,8 @@ import {size} from 'polished';
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row-reverse',
     alignSelf: 'flex-end',
+    flexDirection: 'row-reverse',
   },
 });
 
