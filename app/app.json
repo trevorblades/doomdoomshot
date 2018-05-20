@@ -24,7 +24,8 @@
     "android": {
       "package": "com.trevorblades.doomdoomshot",
       "versionCode": 1,
-      "icon": "./assets/android-icon.png"
+      "icon": "./assets/android-icon.png",
+      "permissions": []
     }
   }
 }
