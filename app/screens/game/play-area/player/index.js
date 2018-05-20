@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {MaterialIcons} from '@expo/vector-icons';
 import {View, Text, StyleSheet} from 'react-native';
-import {FONT_FAMILY_BOLD} from '../../../constants';
+import {FONT_FAMILY_BOLD} from '../../../../constants';
+import Heart from './heart';
 
 const styles = StyleSheet.create({
   alignRight: {
@@ -17,12 +17,6 @@ const styles = StyleSheet.create({
   hearts: {
     flexDirection: 'row',
   },
-  rtl: {
-    flexDirection: 'row-reverse',
-  },
-  heart: {
-    marginRight: 2,
-  },
 });
 
 export default class Player extends Component {
@@ -30,24 +24,27 @@ export default class Player extends Component {
     children: PropTypes.string.isRequired,
     lifeRemaining: PropTypes.number.isRequired,
     maxHealth: PropTypes.number.isRequired,
-    color: PropTypes.string,
+    opponent: PropTypes.bool,
   };
 
   static defaultProps = {
-    color: 'red',
+    opponent: false,
   };
 
   renderHearts() {
     const hearts = [];
     for (let i = 0; i < this.props.maxHealth; i++) {
       hearts.push(
-        <MaterialIcons
+        <View
           key={i}
-          name="favorite"
-          size={16}
-          style={styles.heart}
-          color={this.props.lifeRemaining > i ? this.props.color : 'black'}
-        />
+          style={{marginRight: i === this.props.maxHealth - 1 ? null : 2}}
+        >
+          <Heart inactive />
+          <Heart
+            active={this.props.lifeRemaining > i}
+            color={this.props.opponent ? 'blue' : 'red'}
+          />
+        </View>
       );
     }
 

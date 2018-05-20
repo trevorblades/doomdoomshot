@@ -21,7 +21,7 @@ export default class Bullets extends Component {
     for (let i = 0; i < this.props.maxAmmo; i++) {
       const isLast = i === this.props.maxAmmo - 1;
       bullets.push(
-        <View key={i} style={{marginLeft: isLast.last ? 2 : null}}>
+        <View key={i} style={{marginLeft: isLast ? null : 2}}>
           <Bullet inactive />
           <Bullet
             color={isLast ? 'gold' : 'black'}

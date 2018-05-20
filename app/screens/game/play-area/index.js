@@ -84,7 +84,7 @@ export default class PlayArea extends Component {
       <View style={styles.container}>
         <View style={[styles.row, styles.padded, styles.rowTop]}>
           <Player
-            color="blue"
+            opponent
             lifeRemaining={Number(opponent.health)}
             maxHealth={this.props.maxHealth}
           >
