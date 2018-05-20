@@ -5,7 +5,7 @@ const flatten = require('flat');
 const io = require('socket.io');
 const redis = require('redis');
 const shortid = require('shortid');
-const {ACTION_RELOAD, ACTION_BLOCK, ACTION_SHOOT} = require('../app/constants');
+const {ACTION_RELOAD, ACTION_BLOCK, ACTION_SHOOT} = require('../app/common');
 
 const app = express();
 const server = http.createServer(app);

@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {Alert, StyleSheet, View, Text} from 'react-native';
+import {StyleSheet, View, Text} from 'react-native';
 
 import socket from '../../../socket';
-import {ACTION_RELOAD, ACTION_SHOOT, ACTIONS} from '../../../constants';
+import {ACTION_RELOAD, ACTION_SHOOT, ACTIONS} from '../../../common';
 
 import ActionButton from './action-button';
 import Bullets from './bullets';
@@ -28,6 +28,9 @@ const styles = StyleSheet.create({
   rowBottom: {
     paddingTop: 0,
   },
+  round: {
+    fontSize: 12,
+  },
   actionButtons: {
     marginTop: 16,
   },
@@ -48,26 +51,10 @@ export default class Hud extends Component {
     maxRounds: PropTypes.number.isRequired,
     lastTick: PropTypes.number.isRequired,
     nextTick: PropTypes.number,
-    quit: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
     nextTick: null,
-  };
-
-  forfeit = () => {
-    Alert.alert(
-      'Are you sure?',
-      'If you leave now, this game will be counted as a loss.',
-      [
-        {text: 'Cancel'},
-        {
-          text: 'Forfeit',
-          onPress: this.props.quit,
-        },
-      ],
-      {cancelable: false}
-    );
   };
 
   render() {
@@ -81,8 +68,7 @@ export default class Hud extends Component {
     return (
       <View style={styles.container}>
         <View style={[styles.row, styles.padded, styles.rowTop]}>
-          {/* <Button title="Forfeit" onPress={this.forfeit} /> */}
-          <Text>
+          <Text style={styles.round}>
             Round {this.props.game.round} / {this.props.maxRounds}
           </Text>
           <Player

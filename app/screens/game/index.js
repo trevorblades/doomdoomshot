@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
 
 export default class Game extends Component {
   static propTypes = {
-    navigation: PropTypes.object.isRequired,
+    quitGame: PropTypes.func.isRequired,
   };
 
   state = {
@@ -30,29 +30,27 @@ export default class Game extends Component {
   componentDidMount() {
     socket.open();
     socket.on('message', this.onMessage);
-    socket.on('disconnect', this.quit);
+    socket.on('disconnect', this.props.quitGame);
   }
 
   componentWillUnmount() {
     socket.close();
     socket.off('message', this.onMessage);
-    socket.off('disconnect', this.quit);
+    socket.off('disconnect', this.props.quitGame);
   }
 
   onMessage = state => this.setState(state);
 
-  quit = () => this.props.navigation.navigate('Menu');
-
   render() {
     if (this.state.game) {
-      return <Hud {...this.state} quit={this.quit} />;
+      return <Hud {...this.state} />;
     }
 
     return (
       <View style={[styles.container, styles.centered]}>
         <Text style={styles.status}>{`${this.state.status}...`}</Text>
         <ActivityIndicator size="large" />
-        <Button title="Cancel" onPress={this.quit} />
+        <Button title="Cancel" onPress={this.props.quitGame} />
       </View>
     );
   }

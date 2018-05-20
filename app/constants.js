@@ -1,8 +1,3 @@
-module.exports.ACTION_RELOAD = '👍';
-module.exports.ACTION_BLOCK = '🙅';
-module.exports.ACTION_SHOOT = '👉';
-module.exports.ACTIONS = [
-  module.exports.ACTION_RELOAD,
-  module.exports.ACTION_BLOCK,
-  module.exports.ACTION_SHOOT,
-];
+export const FONT_FAMILY_REGULAR = 'Montserrat Regular';
+export const FONT_FAMILY_SEMI_BOLD = 'Montserrat SemiBold';
+export const FONT_FAMILY_BOLD = 'Montserrat Bold';
