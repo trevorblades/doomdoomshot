@@ -84,8 +84,8 @@ function getDefaultPlayerState(name) {
 websocket.on('connection', async socket => {
   // A new connection was made! We need to try to match this player up with an
   // opponent. First, we grab a random opponent and remove them from the queue
-  const opponent = await spopAsync(QUEUE_KEY);
-  if (!opponent) {
+  const opponentId = await spopAsync(QUEUE_KEY);
+  if (!opponentId) {
     // If there aren't any opponents, add the current user to the queue
     await saddAsync(QUEUE_KEY, socket.id);
     socket.send({status: 'Waiting for opponent...'});
@@ -97,17 +97,17 @@ websocket.on('connection', async socket => {
   const game = {
     id: shortid.generate(),
     round: 1,
-    player1: opponent,
+    player1: opponentId,
     player2: socket.id,
     [socket.id]: getDefaultPlayerState(socket.id),
-    [opponent]: getDefaultPlayerState(opponent),
+    [opponentId]: getDefaultPlayerState(opponentId),
   };
 
   // Save the initial game state and let the opponent know about it
   await hmsetAsync(game.id, flatten(game));
   await Promise.all([
     joinGame(game, socket),
-    joinGame(game, websocket.sockets.connected[opponent]),
+    joinGame(game, websocket.sockets.connected[opponentId]),
   ]);
 
   // Set up the game heartbeat
@@ -139,11 +139,12 @@ websocket.on('connection', async socket => {
             break;
         }
 
-        const otherPlayer = state[other[key]];
+        const opponent = state[other[key]];
+        console.log(opponent.selected, Number(opponent.ammo), player.selected);
         if (
-          otherPlayer.selected === ACTION_SHOOT &&
+          opponent.selected === ACTION_SHOOT &&
           (player.selected !== ACTION_BLOCK ||
-            Number(otherPlayer.ammo) === MAX_AMMO)
+            Number(opponent.ammo) === MAX_AMMO)
         ) {
           player.health = Math.max(0, Number(player.health) - 1);
           if (!player.health) {
