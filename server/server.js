@@ -127,6 +127,22 @@ websocket.on('connection', async socket => {
     [state.player1, state.player2]
       .map(key => {
         const player = state[key];
+        const opponent = state[other[key]];
+        if (
+          opponent.selected === ACTION_SHOOT &&
+          (player.selected !== ACTION_BLOCK ||
+            Number(opponent.ammo) === MAX_AMMO)
+        ) {
+          player.health = Math.max(0, Number(player.health) - 1);
+          if (!player.health) {
+            gameOver = true;
+          }
+        }
+
+        return key;
+      })
+      .map(key => {
+        const player = state[key];
         const ammo = Number(player.ammo);
         switch (player.selected) {
           case ACTION_RELOAD:
@@ -137,19 +153,6 @@ websocket.on('connection', async socket => {
             break;
           default:
             break;
-        }
-
-        const opponent = state[other[key]];
-        console.log(opponent.selected, Number(opponent.ammo), player.selected);
-        if (
-          opponent.selected === ACTION_SHOOT &&
-          (player.selected !== ACTION_BLOCK ||
-            Number(opponent.ammo) === MAX_AMMO)
-        ) {
-          player.health = Math.max(0, Number(player.health) - 1);
-          if (!player.health) {
-            gameOver = true;
-          }
         }
 
         return key;
