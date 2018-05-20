@@ -1,19 +1,18 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import {StyleSheet, View, Text} from 'react-native';
 
 import socket from '../../../socket';
 import {ACTION_RELOAD, ACTION_SHOOT, ACTIONS} from '../../../common';
-import {FONT_FAMILY_SEMI_BOLD} from '../../../constants';
 
 import ActionButton from './action-button';
 import Bullets from './bullets';
 import Menu from './menu';
+import RoundCounter from './round-counter';
 import Player from './player';
 import Progress from './progress';
 
 const padding = 16;
-const roundHeight = 20;
 const actionButtonSize = 84;
 const styles = StyleSheet.create({
   container: {
@@ -32,19 +31,6 @@ const styles = StyleSheet.create({
   },
   rowBottom: {
     paddingTop: 0,
-  },
-  round: {
-    alignSelf: 'flex-start',
-    justifyContent: 'center',
-    height: roundHeight,
-    paddingHorizontal: 12,
-    borderRadius: roundHeight / 2,
-    backgroundColor: 'black',
-  },
-  roundText: {
-    fontFamily: FONT_FAMILY_SEMI_BOLD,
-    fontSize: 11,
-    color: 'white',
   },
   actionButtons: {
     marginTop: 16,
@@ -104,11 +90,11 @@ export default class PlayArea extends Component {
           >
             {opponent.name}
           </Player>
-          <TouchableOpacity style={styles.round} onPress={this.openMenu}>
-            <Text style={styles.roundText}>
-              {this.props.game.round} / {this.props.maxRounds}
-            </Text>
-          </TouchableOpacity>
+          <RoundCounter
+            round={Number(this.props.game.round)}
+            maxRounds={this.props.maxRounds}
+            onPress={this.openMenu}
+          />
         </View>
         <View style={styles.action} transform={[{scaleX: -1}]}>
           <Text style={styles.actionText}>{opponent.action}</Text>
@@ -146,16 +132,15 @@ export default class PlayArea extends Component {
             ))}
           </View>
         </View>
-        {this.state.menuOpen && (
-          <Menu
-            padding={padding}
-            actionButtonSize={actionButtonSize}
-            onClose={this.closeMenu}
-            sound={this.state.sound}
-            toggleSound={this.toggleSound}
-            quit={this.props.quit}
-          />
-        )}
+        <Menu
+          padding={padding}
+          actionButtonSize={actionButtonSize}
+          onClose={this.closeMenu}
+          sound={this.state.sound}
+          toggleSound={this.toggleSound}
+          quit={this.props.quit}
+          visible={this.state.menuOpen}
+        />
       </View>
     );
   }

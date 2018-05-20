@@ -15,8 +15,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-around',
     padding: 48,
+  },
+  logo: {
+    marginTop: 'auto',
+    marginBottom: 'auto',
   },
   buttonBase: {
     alignItems: 'center',
@@ -24,6 +27,7 @@ const styles = StyleSheet.create({
     height: buttonHeight,
   },
   button: {
+    marginTop: 'auto',
     paddingHorizontal: buttonHeight * 0.75,
     borderRadius: buttonHeight / 2,
     backgroundColor: 'red',
@@ -44,7 +48,9 @@ export default class MainMenu extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Logo />
+        <View style={styles.logo}>
+          <Logo width={200} />
+        </View>
         {this.props.loading ? (
           <View style={styles.buttonBase}>
             <ActivityIndicator color="black" />
