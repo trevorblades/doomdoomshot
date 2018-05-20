@@ -37,14 +37,19 @@ export default class App extends Component {
 
   quitGame = () => this.setState({playing: false});
 
+  renderContent() {
+    if (this.state.playing) {
+      return <Game quitGame={this.quitGame} />;
+    }
+    return (
+      <Menu loading={!this.state.fontsLoaded} startGame={this.startGame} />
+    );
+  }
+
   render() {
     return (
       <SafeAreaView style={styles.container}>
-        {this.state.playing ? (
-          <Game quitGame={this.quitGame} />
-        ) : (
-          <Menu loading={!this.state.fontsLoaded} startGame={this.startGame} />
-        )}
+        {this.renderContent()}
       </SafeAreaView>
     );
   }

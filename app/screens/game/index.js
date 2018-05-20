@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {Button, Text, View, StyleSheet, ActivityIndicator} from 'react-native';
 import socket from '../../socket';
-import Hud from './hud';
+import PlayArea from './play-area';
 
 const styles = StyleSheet.create({
   container: {
@@ -43,7 +43,16 @@ export default class Game extends Component {
 
   render() {
     if (this.state.game) {
-      return <Hud {...this.state} />;
+      return (
+        <PlayArea
+          game={this.state.game}
+          maxAmmo={this.state.maxAmmo}
+          maxHealth={this.state.maxHealth}
+          maxRounds={this.state.maxRounds}
+          lastTick={this.state.lastTick}
+          nextTick={this.state.nextTick}
+        />
+      );
     }
 
     return (

@@ -19,9 +19,10 @@ const hsetAsync = promisify(client.hset).bind(client);
 const hmsetAsync = promisify(client.hmset).bind(client);
 const hgetallAsync = promisify(client.hgetall).bind(client);
 
-function dispatch(game, state = {}) {
+function dispatch(status, game, state = {}) {
   websocket.to(game.id).send({
     ...state,
+    status,
     game,
   });
 }
@@ -69,11 +70,16 @@ const TICK_DURATION = 3000; // Time between ticks in milliseconds
 const MAX_ROUNDS = 100;
 const MAX_AMMO = 5;
 const MAX_HEALTH = 3;
-const defaultPlayerState = {
-  selected: ACTION_BLOCK,
-  health: MAX_HEALTH,
-  ammo: 0,
-};
+const DEFAULT_SELECTED_ACTION = ACTION_BLOCK;
+
+function getDefaultPlayerState(name) {
+  return {
+    name,
+    selected: DEFAULT_SELECTED_ACTION,
+    health: MAX_HEALTH,
+    ammo: 0,
+  };
+}
 
 websocket.on('connection', async socket => {
   // A new connection was made! We need to try to match this player up with an
@@ -93,8 +99,8 @@ websocket.on('connection', async socket => {
     round: 1,
     player1: opponent,
     player2: socket.id,
-    [socket.id]: defaultPlayerState,
-    [opponent]: defaultPlayerState,
+    [socket.id]: getDefaultPlayerState(socket.id),
+    [opponent]: getDefaultPlayerState(opponent),
   };
 
   // Save the initial game state and let the opponent know about it
@@ -150,7 +156,7 @@ websocket.on('connection', async socket => {
       .forEach(key => {
         const player = state[key];
         player.action = player.selected;
-        player.selected = defaultPlayerState.selected;
+        player.selected = DEFAULT_SELECTED_ACTION;
       });
 
     if (gameOver) {
@@ -160,19 +166,17 @@ websocket.on('connection', async socket => {
     }
 
     await hmsetAsync(game.id, flatten(state));
-    dispatch(state, {
-      status: gameOver ? 'Completed' : 'Playing',
-      nextTick: gameOver ? null : nextTick,
+    dispatch(gameOver ? 'Completed' : 'Playing', state, {
       lastTick: now,
+      nextTick: gameOver ? null : nextTick,
     });
   }, TICK_DURATION);
 
   const now = Date.now();
-  dispatch(game, {
-    status: 'Connected',
-    maxRounds: MAX_ROUNDS,
+  dispatch('Connected', game, {
     maxAmmo: MAX_AMMO,
     maxHealth: MAX_HEALTH,
+    maxRounds: MAX_ROUNDS,
     lastTick: now,
     nextTick: now + TICK_DURATION,
   });
