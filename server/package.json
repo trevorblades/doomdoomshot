@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "PORT=3000 nodemon index.js"
+    "develop": "PORT=3000 nodemon index.js",
+    "start": "node index.js"
   },
   "xo": {
     "space": true,
