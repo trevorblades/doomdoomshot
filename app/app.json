@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Doom Doom Shot",
-    "description": "Easy-to-learn strategy game",
+    "description": "A stragedy game",
     "slug": "doomdoomshot",
     "privacy": "public",
     "sdkVersion": "27.0.0",
@@ -18,7 +18,13 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.trevorblades.doomdoomshot",
       "supportsTablet": true
+    },
+    "android": {
+      "package": "com.trevorblades.doomdoomshot",
+      "versionCode": 1,
+      "icon": "./assets/android-icon.png"
     }
   }
 }
