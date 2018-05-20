@@ -46,7 +46,7 @@ export default class Menu extends Component {
           >
             <View style={styles.items}>
               <Item style={styles.item} onPress={this.props.quit}>
-                Forfeit game
+                Quit game
               </Item>
               <Item style={styles.item} onPress={this.props.toggleSound}>
                 Sound {this.props.sound ? 'off' : 'on'}
