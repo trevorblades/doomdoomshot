@@ -11,7 +11,7 @@ const app = express();
 const server = http.createServer(app);
 const websocket = io(server);
 
-const client = redis.createClient();
+const client = redis.createClient(process.env.REDIS_URL);
 const delAsync = promisify(client.del).bind(client);
 const spopAsync = promisify(client.spop).bind(client);
 const saddAsync = promisify(client.sadd).bind(client);
