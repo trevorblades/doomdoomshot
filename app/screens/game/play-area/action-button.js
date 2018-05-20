@@ -7,10 +7,8 @@ import socket from '../../../socket';
 
 const styles = StyleSheet.create({
   container: {
-    ...size(84),
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 24,
     overflow: 'hidden',
   },
   disabled: {
@@ -19,9 +17,6 @@ const styles = StyleSheet.create({
   selected: {
     backgroundColor: 'lightgrey',
   },
-  text: {
-    fontSize: 50,
-  },
 });
 
 export default class ActionButton extends Component {
@@ -29,6 +24,7 @@ export default class ActionButton extends Component {
     children: PropTypes.string.isRequired,
     disabled: PropTypes.bool,
     selected: PropTypes.bool.isRequired,
+    size: PropTypes.number.isRequired,
   };
 
   static defaultProps = {
@@ -44,11 +40,15 @@ export default class ActionButton extends Component {
         onPress={this.onPress}
         style={[
           styles.container,
+          size(this.props.size),
+          {borderRadius: this.props.size / 3},
           this.props.disabled ? styles.disabled : null,
           this.props.selected ? styles.selected : null,
         ]}
       >
-        <Text style={styles.text}>{this.props.children}</Text>
+        <Text style={{fontSize: this.props.size / 1.75}}>
+          {this.props.children}
+        </Text>
       </Ripple>
     );
   }

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {StyleSheet, View, Text} from 'react-native';
+import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 
 import socket from '../../../socket';
 import {ACTION_RELOAD, ACTION_SHOOT, ACTIONS} from '../../../common';
@@ -8,17 +8,20 @@ import {FONT_FAMILY_SEMI_BOLD} from '../../../constants';
 
 import ActionButton from './action-button';
 import Bullets from './bullets';
+import Menu from './menu';
 import Player from './player';
 import Progress from './progress';
 
+const padding = 16;
 const roundHeight = 20;
+const actionButtonSize = 84;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-between',
   },
   padded: {
-    padding: 16,
+    padding,
   },
   row: {
     flexDirection: 'row',
@@ -63,11 +66,23 @@ export default class PlayArea extends Component {
     maxRounds: PropTypes.number.isRequired,
     lastTick: PropTypes.number.isRequired,
     nextTick: PropTypes.number,
+    quit: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
     nextTick: null,
   };
+
+  state = {
+    sound: false,
+    menuOpen: false,
+  };
+
+  openMenu = () => this.setState({menuOpen: true});
+
+  closeMenu = () => this.setState({menuOpen: false});
+
+  toggleSound = () => this.setState(prevState => ({sound: !prevState.sound}));
 
   render() {
     // TODO: make this socket reaching-in more declarative or something and
@@ -89,11 +104,11 @@ export default class PlayArea extends Component {
           >
             {opponent.name}
           </Player>
-          <View style={styles.round}>
+          <TouchableOpacity style={styles.round} onPress={this.openMenu}>
             <Text style={styles.roundText}>
               {this.props.game.round} / {this.props.maxRounds}
             </Text>
-          </View>
+          </TouchableOpacity>
         </View>
         <View style={styles.action} transform={[{scaleX: -1}]}>
           <Text style={styles.actionText}>{opponent.action}</Text>
@@ -119,6 +134,7 @@ export default class PlayArea extends Component {
             {ACTIONS.map(action => (
               <ActionButton
                 key={action}
+                size={actionButtonSize}
                 disabled={
                   (action === ACTION_RELOAD && ammo === this.props.maxAmmo) ||
                   (action === ACTION_SHOOT && !ammo)
@@ -130,6 +146,16 @@ export default class PlayArea extends Component {
             ))}
           </View>
         </View>
+        {this.state.menuOpen && (
+          <Menu
+            padding={padding}
+            actionButtonSize={actionButtonSize}
+            onClose={this.closeMenu}
+            sound={this.state.sound}
+            toggleSound={this.toggleSound}
+            quit={this.props.quit}
+          />
+        )}
       </View>
     );
   }

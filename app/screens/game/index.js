@@ -51,6 +51,7 @@ export default class Game extends Component {
           maxRounds={this.state.maxRounds}
           lastTick={this.state.lastTick}
           nextTick={this.state.nextTick}
+          quit={this.props.quitGame}
         />
       );
     }
